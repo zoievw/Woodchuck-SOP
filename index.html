@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SOP Hub">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1A1916">
+<title>Woodchuck USA — SOP Hub</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-badge">Woodchuck USA</span>
+      <span class="brand-divider"></span>
+      <span class="brand-name">SOP Hub</span>
+    </div>
+    <div class="topbar-right">
+      <button class="btn-quote" id="btn-quote" onclick="toggleQuotePanel()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M7 8h4M7 12h10"/></svg>
+        <span>Quoting Tools</span>
+      </button>
+      <button class="btn-flow" id="btn-flow" onclick="openFlow()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="5" height="5" rx="1"/><rect x="16" y="3" width="5" height="5" rx="1"/><rect x="3" y="16" width="5" height="5" rx="1"/><rect x="16" y="16" width="5" height="5" rx="1"/><path d="M8 5.5h8M5.5 8v8M18.5 8v8M8 18.5h8"/></svg>
+        <span>Order Flow</span>
+      </button>
+      <button class="btn-ai-top" onclick="openAI()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span>Spruce AI Help</span>
+      </button>
+      <button class="btn-feedback" id="btn-feedback" onclick="handleFeedbackClick(event)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14l4-4h14a2 2 0 0 0 2-2v-5"/><path d="M18 2l4 4-4 4"/><line x1="22" y1="6" x2="14" y2="6"/></svg>
+        <span>Suggest a Change</span>
+        <span class="badge" id="inbox-badge"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- QUOTING TOOLS PANEL -->
+<div class="quote-panel" id="quote-panel">
+  <div class="quote-panel-inner">
+    <div class="quote-panel-title">📊 Quoting Tools</div>
+    <div class="quote-grid">
+
+      <!-- FOAM -->
+      <div class="quote-card">
+        <div class="quote-card-head">
+          <span class="quote-card-icon">🧽</span>
+          <span class="quote-card-label">Foam Inserts</span>
+        </div>
+        <div class="quote-card-sub">Custom foam cutting for box interiors — snug-fit, shaped, and standard.</div>
+        <div class="quote-card-row">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Primary: <a href="mailto:kao@foamindustries.com">kao@foamindustries.com</a> (Foam Industries)
+        </div>
+        <div class="quote-card-row" style="color:#aaa;font-style:italic">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Also quote: Amcon (contact coming soon) — for standard lead time projects
+        </div>
+        <div class="quote-card-row" style="background:#FFF8E1;border:1px solid #FFE082;border-radius:7px;padding:6px 8px;margin:6px 0;color:#795548;font-size:12.5px;font-style:normal;gap:5px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span><strong>Note:</strong> We do not pay for 1-off samples or runs.</span>
+        </div>
+        <a class="quote-link-btn green" href="https://docs.google.com/spreadsheets/d/1g4IKPJMDpwodKGg-Xf1-i8RBIu5zOjSQfJQJalSNuL4/edit?gid=1511644282#gid=1511644282" target="_blank" rel="noopener">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Foam Industries Quoting Tool
+        </a>
+      </div>
+
+      <!-- PRINT -->
+      <div class="quote-card">
+        <div class="quote-card-head">
+          <span class="quote-card-icon">🖨️</span>
+          <span class="quote-card-label">Print</span>
+        </div>
+        <div class="quote-card-sub">Use the right vendor based on project size and timeline.</div>
+        <div class="quote-card-row" style="margin-bottom:8px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>
+          <div>
+            <div><strong>Large projects</strong> — <a href="mailto:modernistic-scarron@modprint.com">modernistic-scarron@modprint.com</a></div>
+            <div style="color:#888;font-size:11.5px">Scott Carron · Modernistic</div>
+          </div>
+        </div>
+        <div class="quote-card-row">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>
+          <div>
+            <div><strong>Quick / rush / small / paper</strong> — <a href="mailto:sam.fagley@resolutiongraphics.com">sam.fagley@resolutiongraphics.com</a></div>
+            <div style="color:#888;font-size:11.5px">Sam Fagley · Resolution Graphics</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGID -->
+      <div class="quote-card">
+        <div class="quote-card-head">
+          <span class="quote-card-icon">📦</span>
+          <span class="quote-card-label">Rigid Boxes & Cases</span>
+        </div>
+        <div class="quote-card-sub">Quote in this order — start with Custom Box Solutions first.</div>
+        <div class="quote-card-row">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>
+          <strong style="color:#3B6D11">1.</strong> Derek Shepherd — <a href="mailto:derek@customboxsolutions.com">derek@customboxsolutions.com</a> <span style="color:#888;font-size:11.5px">(Custom Box Solutions)</span>
+        </div>
+        <div class="quote-card-row">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>
+          <strong style="color:#666">2.</strong> Austin Haglund — <a href="mailto:ahaglund@centralpackage.com">ahaglund@centralpackage.com</a> <span style="color:#888;font-size:11.5px">(Central Package)</span>
+        </div>
+        <div class="quote-card-row">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>
+          <strong style="color:#666">3.</strong> Chris Martin — <a href="mailto:chris@packagingbee.com">chris@packagingbee.com</a> <span style="color:#888;font-size:11.5px">(Packaging Bee)</span>
+        </div>
+        <div class="quote-card-row">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>
+          <strong style="color:#666">4.</strong> Noah Franklin — <a href="mailto:noah@boxuppackaging.com">noah@boxuppackaging.com</a> <span style="color:#888;font-size:11.5px">(Box Up Packaging)</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- ROLE NAV -->
+  <div class="role-nav" id="role-nav"></div>
+
+  <!-- QUICK ACCESS -->
+  <div class="qa-wrap" id="qa-wrap">
+    <div class="sec-label">⚡ Quick Access <span class="qa-hint">auto-updates based on your most-opened SOPs</span></div>
+    <div class="qa-grid" id="qa-grid"></div>
+  </div>
+
+  <!-- SEARCH -->
+  <div class="search-wrap" id="search-wrap">
+    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input class="search-input" id="search" type="text" placeholder="Search by keyword, topic, or rule…" oninput="render()">
+  </div>
+
+  <div class="filter-row" id="filters"></div>
+  <div class="rcount" id="rcount"></div>
+  <div class="card-grid" id="card-grid"></div>
+
+</div>
+
+<!-- DETAIL DRAWER -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <div class="drawer-top-row">
+      <span class="cat-pill" id="drawer-cat"></span>
+      <div style="display:flex;gap:6px;margin-left:auto;align-items:center">
+        <button class="drawer-share-btn" id="drawer-share-btn" onclick="copyShareLink()" title="Copy shareable link">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </button>
+        <button class="drawer-close" onclick="closeDrawer()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="drawer-title" id="drawer-title"></div>
+    <div class="drawer-date-row"><span id="drawer-date"></span></div>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+
+  <div class="drawer-actions" id="drawer-actions"></div>
+</div>
+
+<!-- BOTTOM NAV (mobile) -->
+<nav class="bottom-nav" id="bottom-nav">
+  <button class="bn-item active" id="bn-All" onclick="setRole('All')">
+    <span class="bn-icon">🏠</span><span>All</span><div class="bn-dot"></div>
+  </button>
+  <button class="bn-item" id="bn-Sales" onclick="setRole('Sales')">
+    <span class="bn-icon">💼</span><span>Sales</span><div class="bn-dot"></div>
+  </button>
+  <button class="bn-item" id="bn-Design" onclick="setRole('Design')">
+    <span class="bn-icon">🎨</span><span>Design</span><div class="bn-dot"></div>
+  </button>
+  <button class="bn-item" id="bn-Shipping" onclick="setRole('Shipping')">
+    <span class="bn-icon">📦</span><span>Ship</span><div class="bn-dot"></div>
+  </button>
+  <button class="bn-item" id="bn-Finance" onclick="setRole('Finance')">
+    <span class="bn-icon">💰</span><span>Finance</span><div class="bn-dot"></div>
+  </button>
+  <button class="bn-item" id="bn-Today" onclick="setRole('Today')">
+    <span class="bn-icon">📅</span><span>Today</span><div class="bn-dot"></div>
+  </button>
+</nav>
+
+<!-- FEEDBACK MODAL -->
+<div class="modal-overlay" id="fb-modal-overlay" onclick="fbOverlayClick(event)">
+  <div class="fb-modal">
+    <div class="modal-header">
+      <div class="modal-header-title">Suggest a Change</div>
+      <button class="modal-close" onclick="closeFeedback()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <div class="fb-type-row">
+          <button class="fb-type-btn active" id="fb-type-change" onclick="setFbType('change')">✏️ Request a Change</button>
+          <button class="fb-type-btn" id="fb-type-feedback" onclick="setFbType('feedback')">💬 General Feedback</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Related SOP <span style="font-weight:400;text-transform:none;color:#AAA">(optional)</span></label>
+        <select class="form-select" id="fb-sop">
+          <option value="">— General / not SOP-specific —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Name</label>
+        <input class="form-input" id="fb-name" type="text" placeholder="e.g. Alex">
+      </div>
+      <div class="form-group">
+        <label class="form-label" id="fb-msg-label">What would you like to change?</label>
+        <textarea class="form-textarea" id="fb-msg" style="min-height:110px" placeholder="Describe what's incorrect, unclear, or missing…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeFeedback()">Cancel</button>
+      <button class="btn-primary" onclick="submitFeedback()">Submit</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN INBOX MODAL -->
+<div class="modal-overlay" id="inbox-modal-overlay" onclick="inboxOverlayClick(event)">
+  <div class="inbox-modal">
+    <div class="modal-header">
+      <div class="modal-header-title">📥 Feedback Inbox</div>
+      <button class="modal-close" onclick="closeInbox()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="inbox-tab-row">
+      <button class="inbox-tab active" id="itab-pending" onclick="setInboxTab('pending')">Pending</button>
+      <button class="inbox-tab" id="itab-approved" onclick="setInboxTab('approved')">Approved</button>
+      <button class="inbox-tab" id="itab-dismissed" onclick="setInboxTab('dismissed')">Dismissed</button>
+    </div>
+    <div class="modal-body" id="inbox-body" style="padding-top:18px"></div>
+  </div>
+</div>
+
+<!-- AI MODAL -->
+<div class="ai-modal-overlay" id="ai-overlay" onclick="aiOverlayClick(event)">
+  <div class="ai-modal">
+    <div class="ai-header">
+      <div class="ai-header-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <div>
+        <div class="ai-header-title">Spruce AI Help</div>
+        <div class="ai-header-sub">Ask anything — I'll find the right SOP</div>
+      </div>
+      <button class="modal-close" style="margin-left:auto" onclick="closeAI()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="ai-chat" id="ai-chat"></div>
+    <div class="ai-input-row">
+      <input class="ai-input" id="ai-input" type="text" placeholder="Type your question…" onkeydown="if(event.key==='Enter')sendAI()" autocomplete="off">
+      <button class="ai-send" onclick="sendAI()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="sops-data.js"></script>
+<script src="app.js"></script>
+
+<!-- ── ORDER FLOW MODAL ── -->
+<div class="flow-overlay" id="flow-overlay" onclick="if(event.target===this)closeFlow()">
+  <div class="flow-modal">
+    <div class="flow-modal-header">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="5" height="5" rx="1"/><rect x="16" y="3" width="5" height="5" rx="1"/><rect x="3" y="16" width="5" height="5" rx="1"/><rect x="16" y="16" width="5" height="5" rx="1"/><path d="M8 5.5h8M5.5 8v8M18.5 8v8M8 18.5h8"/></svg>
+      <span class="flow-modal-title">Order Flow — Sales to Production</span>
+      <button class="flow-modal-close" onclick="closeFlow()">✕ Close</button>
+    </div>
+    <div class="flow-modal-body">
+      <div class="flow-desc">How an order moves through the business — from first inquiry to delivery. Each phase shows which SOPs apply at that step.</div>
+      <div class="flow-legend">
+        <div class="flow-legend-item"><div class="flow-legend-dot" style="background:#0C447C"></div> Sales</div>
+        <div class="flow-legend-item"><div class="flow-legend-dot" style="background:#27500A"></div> Design</div>
+        <div class="flow-legend-item"><div class="flow-legend-dot" style="background:#633806"></div> Production</div>
+        <div class="flow-legend-item"><div class="flow-legend-dot" style="background:#085041"></div> Shipping</div>
+        <div class="flow-legend-item"><div class="flow-legend-dot" style="background:#4A3728"></div> Post-Sale</div>
+      </div>
+      <div class="flow-grid">
+
+        <!-- PHASE 1: INQUIRY -->
+        <div class="fphase fphase-sales">
+          <div class="fphase-header">
+            <div class="fphase-num">Phase 1</div>
+            <div class="fphase-label">Inquiry & Quote</div>
+            <div class="fphase-role">Sales</div>
+          </div>
+          <div class="fphase-body">
+            <div class="fstep">
+              <div class="fstep-name">Receive inquiry</div>
+              <div class="fstep-desc">Review project scope and timeline with customer.</div>
+              <div class="fsop-chips"><span class="fsop-chip" onclick="closeFlow();openCard(getIdByTitle('Order lead times'))">Lead Times</span></div>
+            </div>
+            <div class="fstep">
+              <div class="fstep-name">New customer?</div>
+              <div class="fif-badge">If new</div>
+              <div class="fstep-desc">Set up customer record in Odoo before quoting.</div>
+              <div class="fsop-chips"><span class="fsop-chip" onclick="closeFlow();openCard(34)">SOP 34</span></div>
+            </div>
+            <div class="fstep">
+              <div class="fstep-name">Build & send quotation</div>
+              <div class="fstep-desc">Create quote in Odoo, compute taxes, send to customer.</div>
+              <div class="fsop-chips"><span class="fsop-chip" onclick="closeFlow();openCard(35)">SOP 35</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PHASE 2: KICKOFF -->
+        <div class="fphase fphase-kickoff">
+          <div class="fphase-header">
+            <div class="fphase-num">Phase 2</div>
+            <div class="fphase-label">Close & Kick Off</div>
+            <div class="fphase-role">Sales</div>
+          </div>
+          <div class="fphase-body">
+            <div class="fstep">
+              <div class="fstep-name">Customer approves</div>
+              <div class="fstep-desc">Confirm the sales order in Odoo.</div>
+              <div class="fsop-chips"><span class="fsop-chip" onclick="closeFlow();openCard(15)">SOP 15</span></div>
+            </div>
+            <div class="fstep">
+              <div class="fstep-name">Pre-design checklist</div>
+              <div class="fstep-desc">Confirm all project details before handing to design.</div>
+              <div class="fsop-chips"><span class="fsop-chip" onclick="closeFlow();openCard(3)">SOP 3</span></div>
+            </div>
+            <div class="fstep">
+              <div class="fstep-name">Rush or change order?</div>
+              <div class="fif-badge">If applicable</div>
+              <div class="fstep-desc">Document fee and update order before proceeding.</div>
+              <div class="fsop-chips"><span class="fsop-chip" onclick="closeFlow();openCard(17)">SOP 17</span><span class="fsop-chip" onclick="closeFlow();openCard(16)">SOP 16</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PHASE 3: DESIGN -->
+        <div class="fphase fphase-design">
+          <div class="fphase-header">
+            <div class="fphase-num">Phase 3</div>
+            <div class="fphase-label">Design</div>
+            <div class="fphase-role">Designer</div>
+          </div>
+          <div class="fphase-body">
+            <div class="fstep">
+              <div class="fstep-name">Artwork review</div>
+              <div class="fstep-desc">Check file types, resolution, and vector requirements.</div>
+              <div class="fsop-chips"><span class="fsop-chip" onclick="closeFlow();openCard(5)">SOP 5</span></div>
+            </div>
+            <div class="fstep">
+              <div class="fstep-name">Mockup or proof</div>
+              <div class="fstep-desc">Determine Level 1 or Level 2 based on project type.</div>
+              <div class="fsop-chips"><span class="fsop-chip" onclick="closeFlow();openCard(4)">SOP 4</span></div>
+            </div>
+            <div class="fstep">
+              <div class="fstep-name">PPC / pre-press check</div>
+              <div class="fstep-desc">Pre-production check before sending to floor.</div>
+              <div class="fsop-chips"><span class="fsop-chip" onclick="closeFlow();openCard(8)">SOP 8</span></div>
+            </div>
+            <div class="fstep">
+              <div class="fstep-name">Variable data</div>
+              <div class="fif-badge">If applicable</div>
+              <div class="fstep-desc">Set up CSV template and VD file correctly.</div>
+              <div class="fsop-chips"><span class="fsop-chip" onclick="closeFlow();openCard(6)">SOP 6</span></div>
+            </div>
+            <div class="fstep">
+              <div class="fstep-name">File handoff</div>
+              <div class="fstep-desc">Final pre-flight and handoff to production.</div>
+              <div class="fsop-chips"><span class="fsop-chip" onclick="closeFlow();openCard(1)">SOP 1</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PHASE 4: PRODUCTION -->
+        <div class="fphase fphase-production">
+          <div class="fphase-header">
+            <div class="fphase-num">Phase 4</div>
+            <div class="fphase-label">Production</div>
+            <div class="fphase-role">Production Team</div>
+          </div>
+          <div class="fphase-body">
+            <div class="fstep">
+              <div class="fstep-name">Assembly line setup</div>
+              <div class="fstep-desc">Assign roles, establish QA zones, inspect pieces.</div>
+              <div class="fsop-chips"><span class="fsop-chip" onclick="closeFlow();openCard(36)">SOP 36</span></div>
+            </div>
+            <div class="fstep">
+              <div class="fstep-name">Foam inserts</div>
+              <div class="fif-badge">If applicable</div>
+              <div class="fstep-desc">Design spec and vendor quoting for foam projects.</div>
+              <div class="fsop-chips"><span class="fsop-chip" onclick="closeFlow();openCard(7)">SOP 7</span></div>
+            </div>
+            <div class="fstep">
+              <div class="fstep-name">Material overages</div>
+              <div class="fstep-desc">Confirm overage percentages before cutting.</div>
+              <div class="fsop-chips"><span class="fsop-chip" onclick="closeFlow();openCard(2)">SOP 2</span></div>
+            </div>
+            <div class="fstep">
+              <div class="fstep-name">Issue found?</div>
+              <div class="fif-badge">If defect</div>
+              <div class="fstep-desc">Stop production — follow defective product process.</div>
+              <div class="fsop-chips"><span class="fsop-chip" onclick="closeFlow();openCard(33)">SOP 33</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PHASE 5: SHIPPING -->
+        <div class="fphase fphase-shipping">
+          <div class="fphase-header">
+            <div class="fphase-num">Phase 5</div>
+            <div class="fphase-label">Shipping</div>
+            <div class="fphase-role">Shipping Team</div>
+          </div>
+          <div class="fphase-body">
+            <div class="fstep">
+              <div class="fstep-name">Package the order</div>
+              <div class="fstep-desc">Foam wrap, box, and protect per project specs.</div>
+              <div class="fsop-chips"><span class="fsop-chip" onclick="closeFlow();openCard(21)">SOP 21</span></div>
+            </div>
+            <div class="fstep">
+              <div class="fstep-name">Kitting</div>
+              <div class="fif-badge">If applicable</div>
+              <div class="fstep-desc">Assemble inbound kitting orders before shipment.</div>
+              <div class="fsop-chips"><span class="fsop-chip" onclick="closeFlow();openCard(25)">SOP 25</span></div>
+            </div>
+            <div class="fstep">
+              <div class="fstep-name">Ship out</div>
+              <div class="fstep-desc">Choose correct method based on order size and destination.</div>
+              <div class="fsop-chips"><span class="fsop-chip" onclick="closeFlow();openCard(18)">SOP 18</span><span class="fsop-chip" onclick="closeFlow();openCard(19)">SOP 19</span><span class="fsop-chip" onclick="closeFlow();openCard(20)">SOP 20</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PHASE 6: POST-SALE -->
+        <div class="fphase fphase-postsale">
+          <div class="fphase-header">
+            <div class="fphase-num">Phase 6</div>
+            <div class="fphase-label">Post-Sale</div>
+            <div class="fphase-role">Sales / Finance</div>
+          </div>
+          <div class="fphase-body">
+            <div class="fstep">
+              <div class="fstep-name">Invoice customer</div>
+              <div class="fstep-desc">Create and send invoice from Odoo — confirm payment terms.</div>
+              <div class="fsop-chips"><span class="fsop-chip" onclick="closeFlow();openCard(35)">SOP 35</span></div>
+            </div>
+            <div class="fstep">
+              <div class="fstep-name">Returns or defects</div>
+              <div class="fif-badge">If issue</div>
+              <div class="fstep-desc">Customer reports a problem — follow returns or defectives SOP.</div>
+              <div class="fsop-chips"><span class="fsop-chip" onclick="closeFlow();openCard(26)">SOP 26</span><span class="fsop-chip" onclick="closeFlow();openCard(33)">SOP 33</span></div>
+            </div>
+            <div class="fstep fstep-done">
+              <div class="fstep-name">✓ Order complete</div>
+              <div class="fstep-desc">Customer received their order — job closed.</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /flow-grid -->
+      <div style="margin-top:20px;font-size:12px;color:#aaa;text-align:center">Click any SOP chip to open that SOP · Press Esc to close</div>
+    </div><!-- /flow-modal-body -->
+  </div><!-- /flow-modal -->
+</div><!-- /flow-overlay -->
+</body>
+</html>
