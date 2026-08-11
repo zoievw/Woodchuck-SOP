@@ -1,14 +1,13 @@
 // POST /api/submit — appends one quality-feedback submission to Blob storage.
-import { list, put } from '@vercel/blob';
+import { get, put } from '@vercel/blob';
 
 const STORE_FILE = 'submissions.json';
 
 async function readAll() {
-  const { blobs } = await list({ prefix: STORE_FILE, limit: 1 });
-  if (!blobs.length) return [];
-  const r = await fetch(blobs[0].url, { cache: 'no-store' });
-  const data = await r.json().catch(() => []);
-  return Array.isArray(data) ? data : [];
+  const result = await get(STORE_FILE, { access: 'private', useCache: false });
+  if (!result || result.statusCode !== 200 || !result.stream) return [];
+  const text = await new Response(result.stream).text();
+  try { const d = JSON.parse(text); return Array.isArray(d) ? d : []; } catch { return []; }
 }
 
 export default async function handler(req, res) {
@@ -48,7 +47,7 @@ export default async function handler(req, res) {
     submissions.push(entry);
 
     await put(STORE_FILE, JSON.stringify(submissions), {
-      access: 'public',
+      access: 'private',
       addRandomSuffix: false,
       allowOverwrite: true,
       contentType: 'application/json',
