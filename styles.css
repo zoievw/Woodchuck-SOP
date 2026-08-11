@@ -256,6 +256,14 @@ mark{background:#EAF3DE;color:#27500A;border-radius:3px;padding:0 3px}
 .qf-comments{color:#8a867f;font-size:12.5px;line-height:1.5;font-style:italic;margin:2px 0 4px}
 .qf-row-meta{display:flex;gap:14px;flex-wrap:wrap;color:#8a867f;font-size:11.5px;margin-top:7px}
 .qf-empty{color:#7a766f;text-align:center;padding:44px 20px;font-size:14px;line-height:1.6}
+.qf-gate{display:none;align-items:center;justify-content:center;min-height:280px}
+.qf-gate-card{text-align:center;max-width:300px;width:100%}
+.qf-gate-lock{font-size:34px;margin-bottom:12px}
+.qf-gate-title{color:#C8C4BC;font-size:14px;font-weight:600;margin-bottom:16px}
+.qf-gate-card input{background:#242420;border:1px solid #3a3834;border-radius:8px;color:#E8E4DC;font-size:14px;padding:10px 12px;width:100%;box-sizing:border-box;outline:none;text-align:center;margin-bottom:10px}
+.qf-gate-card input:focus{border-color:#F5A623}
+.qf-gate-card .qf-submit-btn{width:100%}
+.qf-gate-msg{color:#E5674E;font-size:12.5px;font-weight:600;margin-top:12px;min-height:16px}
 
 /* ── ORDER FLOW BUTTON ── */
 .btn-flow{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.75);border:1.5px solid rgba(255,255,255,.12);border-radius:10px;padding:10px 16px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;height:42px}

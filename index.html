@@ -525,12 +525,23 @@
 
       <!-- SUBMISSIONS PANEL -->
       <div class="qf-panel" id="qf-panel-list">
-        <div class="qf-list-controls">
-          <div class="qf-filter"><label>Department</label><select id="qf-filter-dept" onchange="renderSubmissions()"><option value="">All departments</option><option>Assembly</option><option>Design</option><option>QA</option><option>Shipping</option><option>Sales</option><option>R&amp;D</option><option>MGMT</option><option>Other</option></select></div>
-          <div class="qf-filter"><label>Reported by</label><select id="qf-filter-person" onchange="renderSubmissions()"><option value="">Anyone</option></select></div>
-          <button class="qf-refresh" onclick="loadSubmissions()">↻ Refresh</button>
+        <div class="qf-gate" id="qf-gate">
+          <div class="qf-gate-card">
+            <div class="qf-gate-lock">🔒</div>
+            <div class="qf-gate-title">Enter passcode to view submissions</div>
+            <input type="password" id="qf-pass" placeholder="Passcode" autocomplete="off" onkeydown="if(event.key==='Enter')unlockSubmissions()">
+            <button class="qf-submit-btn" onclick="unlockSubmissions()">Unlock</button>
+            <div class="qf-gate-msg" id="qf-gate-msg"></div>
+          </div>
         </div>
-        <div class="qf-list" id="qf-list"><div class="qf-empty">Loading…</div></div>
+        <div id="qf-list-wrap" style="display:none">
+          <div class="qf-list-controls">
+            <div class="qf-filter"><label>Department</label><select id="qf-filter-dept" onchange="renderSubmissions()"><option value="">All departments</option><option>Assembly</option><option>Design</option><option>QA</option><option>Shipping</option><option>Sales</option><option>R&amp;D</option><option>MGMT</option><option>Other</option></select></div>
+            <div class="qf-filter"><label>Reported by</label><select id="qf-filter-person" onchange="renderSubmissions()"><option value="">Anyone</option></select></div>
+            <button class="qf-refresh" onclick="loadSubmissions()">↻ Refresh</button>
+          </div>
+          <div class="qf-list" id="qf-list"></div>
+        </div>
       </div>
 
     </div>
@@ -538,13 +549,12 @@
 </div>
 
 <script>
-let _qfSubs = [];
+let _qfSubs = [], _qfPass = '', _qfUnlocked = false;
 
 function openQualityFeedback() {
   document.getElementById('quality-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
   switchQualityTab('submit');
-  loadSubmissions();
 }
 function closeQualityFeedback() {
   document.getElementById('quality-overlay').classList.remove('open');
@@ -562,7 +572,31 @@ function switchQualityTab(which) {
   document.getElementById('qf-tab-list').classList.toggle('active', which === 'list');
   document.getElementById('qf-panel-submit').classList.toggle('active', which === 'submit');
   document.getElementById('qf-panel-list').classList.toggle('active', which === 'list');
-  if (which === 'list') loadSubmissions();
+  if (which === 'list') {
+    if (_qfUnlocked) { showSubmissionsList(); loadSubmissions(); }
+    else { showSubmissionsGate(); }
+  }
+}
+
+function showSubmissionsGate() {
+  document.getElementById('qf-gate').style.display = 'flex';
+  document.getElementById('qf-list-wrap').style.display = 'none';
+  const p = document.getElementById('qf-pass');
+  if (p) { p.value = ''; setTimeout(() => p.focus(), 60); }
+}
+function showSubmissionsList() {
+  document.getElementById('qf-gate').style.display = 'none';
+  document.getElementById('qf-list-wrap').style.display = 'block';
+}
+async function unlockSubmissions() {
+  const pass = document.getElementById('qf-pass').value;
+  const msg = document.getElementById('qf-gate-msg');
+  if (!pass) { msg.textContent = 'Enter the passcode.'; return; }
+  msg.textContent = 'Checking…';
+  _qfPass = pass;
+  const ok = await loadSubmissions();
+  if (ok) { _qfUnlocked = true; showSubmissionsList(); msg.textContent = ''; }
+  else { _qfPass = ''; msg.textContent = 'Incorrect passcode.'; }
 }
 
 function qfEsc(s) {
@@ -603,8 +637,12 @@ async function submitQualityReport() {
     msg.className = 'qf-msg ok';
     msg.textContent = '✓ Submitted — thank you!';
     ['qf-date','qf-project','qf-order','qf-issue','qf-category','qf-severity','qf-dollar','qf-reporter','qf-comments'].forEach(id => { g(id).value = ''; });
-    await loadSubmissions();
-    setTimeout(() => { switchQualityTab('list'); msg.textContent = ''; msg.className = 'qf-msg'; }, 1000);
+    if (_qfUnlocked) {
+      await loadSubmissions();
+      setTimeout(() => { switchQualityTab('list'); msg.textContent = ''; msg.className = 'qf-msg'; }, 1000);
+    } else {
+      setTimeout(() => { msg.textContent = ''; msg.className = 'qf-msg'; }, 3000);
+    }
   } catch (e) {
     msg.className = 'qf-msg err';
     msg.textContent = 'Could not submit: ' + e.message;
@@ -617,7 +655,8 @@ async function loadSubmissions() {
   const list = document.getElementById('qf-list');
   if (list && !_qfSubs.length) list.innerHTML = '<div class="qf-empty">Loading…</div>';
   try {
-    const r = await fetch('/api/entries', { cache: 'no-store' });
+    const r = await fetch('/api/entries', { cache: 'no-store', headers: { 'X-Passcode': _qfPass } });
+    if (r.status === 401) { _qfUnlocked = false; showSubmissionsGate(); return false; }
     const data = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(data.error || ('HTTP ' + r.status));
     _qfSubs = Array.isArray(data.submissions) ? data.submissions : [];
@@ -628,8 +667,10 @@ async function loadSubmissions() {
       sel.innerHTML = '<option value="">Anyone</option>' + people.map(p => `<option${p === cur ? ' selected' : ''}>${qfEsc(p)}</option>`).join('');
     }
     renderSubmissions();
+    return true;
   } catch (e) {
     if (list) list.innerHTML = `<div class="qf-empty">Couldn't load submissions.<br><span style="font-size:12px;color:#6b6862">${qfEsc(e.message)}</span></div>`;
+    return false;
   }
 }
 
