@@ -209,6 +209,53 @@ mark{background:#EAF3DE;color:#27500A;border-radius:3px;padding:0 3px}
 .quality-modal-close{background:none;border:none;color:#9A9690;cursor:pointer;font-size:20px;line-height:1;padding:4px 8px;border-radius:6px;transition:color .15s}
 .quality-modal-close:hover{color:#E8E4DC}
 .quality-modal iframe{flex:1;border:none;width:100%;background:#1A1916}
+/* Quality Feedback — tabs, form, submissions list */
+.qf-tabs{display:flex;gap:2px;padding:12px 20px 0;border-bottom:1px solid #3a3834;flex-shrink:0}
+.qf-tab{background:none;border:none;color:#9A9690;font-size:13.5px;font-weight:600;padding:9px 16px;border-radius:8px 8px 0 0;cursor:pointer;border-bottom:2px solid transparent;transition:color .15s,border-color .15s}
+.qf-tab:hover{color:#E8E4DC}
+.qf-tab.active{color:#F5A623;border-bottom-color:#F5A623}
+.qf-body{flex:1;overflow-y:auto;padding:20px}
+.qf-panel{display:none}
+.qf-panel.active{display:block}
+.qf-intro{color:#9A9690;font-size:13px;margin:0 0 16px}
+.qf-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.qf-grid2{grid-template-columns:1fr}}
+.qf-field{margin-bottom:12px;display:flex;flex-direction:column}
+.qf-field label{color:#C8C4BC;font-size:12px;font-weight:600;margin-bottom:5px}
+.qf-field input,.qf-field select,.qf-field textarea{background:#242420;border:1px solid #3a3834;border-radius:8px;color:#E8E4DC;font-size:13.5px;padding:9px 11px;font-family:inherit;outline:none;transition:border-color .15s;width:100%;box-sizing:border-box}
+.qf-field input:focus,.qf-field select:focus,.qf-field textarea:focus{border-color:#F5A623}
+.qf-field textarea{min-height:80px;resize:vertical}
+.qf-field input::placeholder,.qf-field textarea::placeholder{color:#6b6862}
+.qf-submit-row{display:flex;align-items:center;justify-content:flex-end;gap:14px;margin-top:8px}
+.qf-msg{font-size:13px;font-weight:600;margin-right:auto}
+.qf-msg.ok{color:#7DBB4C}
+.qf-msg.err{color:#E5674E}
+.qf-submit-btn{background:#F5A623;color:#1A1916;border:none;border-radius:9px;font-size:13.5px;font-weight:700;padding:10px 22px;cursor:pointer;transition:background .15s}
+.qf-submit-btn:hover{background:#ffb840}
+.qf-submit-btn:disabled{opacity:.6;cursor:default}
+.qf-list-controls{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:18px}
+.qf-filter{display:flex;flex-direction:column;gap:5px}
+.qf-filter label{color:#9A9690;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.qf-filter select{background:#242420;border:1px solid #3a3834;border-radius:8px;color:#E8E4DC;font-size:13px;padding:8px 10px;min-width:160px;outline:none}
+.qf-filter select:focus{border-color:#F5A623}
+.qf-refresh{margin-left:auto;background:#242420;border:1px solid #3a3834;color:#C8C4BC;border-radius:8px;font-size:12.5px;font-weight:600;padding:9px 13px;cursor:pointer;transition:color .15s,border-color .15s}
+.qf-refresh:hover{border-color:#F5A623;color:#F5A623}
+.qf-month{margin-bottom:22px}
+.qf-month-label{color:#F5A623;font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid #3a3834;display:flex;justify-content:space-between;align-items:baseline}
+.qf-month-count{color:#7a766f;font-weight:600;font-size:11.5px;letter-spacing:0;text-transform:none}
+.qf-row{background:#211f1b;border:1px solid #322f2b;border-radius:10px;padding:12px 14px;margin-bottom:8px}
+.qf-row-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.qf-row-project{color:#E8E4DC;font-weight:700;font-size:14px}
+.qf-row-order{color:#8a867f;font-size:12px;font-family:ui-monospace,Menlo,monospace}
+.qf-pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.4px}
+.qf-pill.dept{background:#2b3a44;color:#8ec5e0}
+.qf-pill.sev-1{background:#4a2320;color:#f5a08e}
+.qf-pill.sev-2{background:#4a3f20;color:#e8c86a}
+.qf-pill.sev-3{background:#26401f;color:#8fc96f}
+.qf-issue{color:#C8C4BC;font-size:13px;line-height:1.5;margin:4px 0}
+.qf-comments{color:#8a867f;font-size:12.5px;line-height:1.5;font-style:italic;margin:2px 0 4px}
+.qf-row-meta{display:flex;gap:14px;flex-wrap:wrap;color:#8a867f;font-size:11.5px;margin-top:7px}
+.qf-empty{color:#7a766f;text-align:center;padding:44px 20px;font-size:14px;line-height:1.6}
 
 /* ── ORDER FLOW BUTTON ── */
 .btn-flow{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.75);border:1.5px solid rgba(255,255,255,.12);border-radius:10px;padding:10px 16px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;height:42px}
