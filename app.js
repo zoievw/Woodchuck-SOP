@@ -24,7 +24,13 @@ let wcCheckState = {}; // checklist checked state per card
 // ─── CUSTOM CARDS ───────────────────────────────────────────
 function getCustomCards(){try{return JSON.parse(localStorage.getItem("wc_custom")||"[]")}catch{return[]}}
 function saveCustomCards(arr){localStorage.setItem("wc_custom",JSON.stringify(arr))}
-function getAllCards(){return [...BUILTIN,...getCustomCards().map(c=>({...c,isCustom:true}))]}
+let SOP_REMOTE={edits:{},added:[],deleted:[]};
+function getAllCards(){
+  const gone=new Set(SOP_REMOTE.deleted||[]);
+  const base=BUILTIN.filter(c=>!gone.has(c.id)).map(c=>SOP_REMOTE.edits[c.id]?{...c,...SOP_REMOTE.edits[c.id],edited:true}:c);
+  const added=(SOP_REMOTE.added||[]).filter(c=>!gone.has(c.id)).map(c=>({...c,isAdded:true}));
+  return [...base,...added,...getCustomCards().map(c=>({...c,isCustom:true}))];
+}
 
 // ─── DAILY TRACKING ─────────────────────────────────────────
 function todayStr(){return new Date().toISOString().slice(0,10)}
@@ -89,7 +95,7 @@ function renderQuickAccess(){
 function getVisibleCards(){
   const all=getAllCards();const roleIds=ROLE_IDS[activeRole];
   return all.filter(c=>{
-    if(c.isCustom){return activeRole==="All"||!c.roles||c.roles.length===0||c.roles.includes(activeRole);}
+    if(c.isCustom||c.isAdded){return activeRole==="All"||!c.roles||c.roles.length===0||c.roles.includes(activeRole);}
     return !roleIds||roleIds.includes(c.id);
   });
 }
@@ -254,6 +260,7 @@ function openCard(id){
   // Actions
   document.getElementById("drawer-actions").innerHTML=`
     <button class="btn-confused" onclick="openConfused()">😕 I'm confused</button>
+    <button class="drawer-edit-btn" onclick="requestEdit(${card.id})">✏️ Edit SOP 🔒</button>
     ${card.isCustom?`<button class="drawer-del-btn" onclick="deleteCustomCard(${card.id})">🗑 Delete this SOP</button>`:""}
   `;
   document.getElementById("drawer-overlay").classList.add("open");
@@ -607,6 +614,23 @@ function wcStop(){}
 
 renderAll();
 updateInboxBadge();
+
+// ─── SHARED SOP EDITS (stored on the server) ─────────────────
+async function loadSopEdits(){
+  try{
+    const r=await fetch('/api/sops',{cache:'no-store'});
+    if(!r.ok)return;
+    const d=await r.json();
+    SOP_REMOTE={edits:d.edits||{},added:d.added||[],deleted:d.deleted||[]};
+    renderAll();
+    const h=window.location.hash;
+    if(h.startsWith('#sop-')&&!document.getElementById('drawer').classList.contains('open')){
+      const id=parseInt(h.replace('#sop-',''),10);
+      if(!isNaN(id)&&getAllCards().some(c=>c.id===id))openCard(id);
+    }
+  }catch(e){/* offline or no server: built-in SOPs still work */}
+}
+loadSopEdits();
 
 // ─── HASH-BASED DEEP LINK ─────────────────────────────────────
 (function(){

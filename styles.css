@@ -560,3 +560,62 @@ mark{background:#EAF3DE;color:#27500A;border-radius:3px;padding:0 3px}
   .sug-chip{padding:10px 16px}
   .result-card{padding:15px 16px}
 }
+
+/* ── ADMIN: create button, passcode, SOP editor ── */
+.admin-create-row{display:flex;justify-content:center;margin:2rem 0 .5rem}
+.btn-create-sop{background:transparent;border:2px dashed #B8B2A6;color:#5A5650;border-radius:14px;padding:14px 26px;font-size:14.5px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s}
+.btn-create-sop span{opacity:.7;margin-left:4px}
+.btn-create-sop:hover{border-color:#3B6D11;color:#27500A;background:#F3F7EC}
+.drawer-edit-btn{display:flex;align-items:center;gap:6px;background:none;border:1.5px solid #E0DDD6;color:#888;border-radius:10px;padding:10px 14px;font-size:13.5px;cursor:pointer;font-family:inherit;transition:all .15s}
+.drawer-edit-btn:hover{background:#EAF3DE;color:#27500A;border-color:#BCD9A0}
+.admin-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9500;align-items:center;justify-content:center;padding:16px}
+.admin-overlay.open{display:flex}
+.admin-pass-card{background:#fff;border-radius:18px;padding:26px 24px;width:min(340px,100%);text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.25)}
+.admin-lock{font-size:34px;margin-bottom:8px}
+.admin-pass-title{font-size:17px;font-weight:800;color:#1a1a1a}
+.admin-pass-sub{font-size:13px;color:#777;margin:4px 0 16px}
+.admin-pass-card input{width:100%;border:1.5px solid #D4CEC3;border-radius:10px;padding:11px 12px;font-size:15px;text-align:center;font-family:inherit;margin-bottom:10px;outline:none}
+.admin-pass-card input:focus{border-color:#3B6D11}
+.admin-msg{color:#C0392B;font-size:13px;font-weight:600;min-height:18px;margin-top:10px}
+.admin-btn{border-radius:10px;padding:10px 18px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;border:1.5px solid transparent;transition:all .15s}
+.admin-btn.primary{background:#3B6D11;color:#fff}
+.admin-btn.primary:hover{background:#2f5a0d}
+.admin-btn.primary:disabled{opacity:.6;cursor:default}
+.admin-btn.ghost{background:#fff;border-color:#D4CEC3;color:#555}
+.admin-btn.ghost:hover{background:#F5F4F0}
+.admin-btn.danger{background:#fff;border-color:#E3B7B1;color:#A32D2D}
+.admin-btn.danger:hover{background:#FCEBEB}
+.editor-modal{background:#FBFAF7;border-radius:18px;width:min(860px,100%);height:min(92vh,880px);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.35)}
+.editor-head{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid #E2DED5;background:#fff}
+.editor-title{font-size:17px;font-weight:800;color:#1a1a1a}
+.editor-x{background:none;border:none;font-size:20px;color:#888;cursor:pointer;padding:4px 8px;border-radius:6px}
+.editor-x:hover{color:#1a1a1a;background:#F0EDE6}
+.editor-scroll{flex:1;overflow-y:auto;padding:18px 22px 10px}
+.ed-label{display:block;font-size:12px;font-weight:700;color:#5A5650;margin:14px 0 6px}
+.ed-label span{font-weight:500;color:#999}
+.ed-input{width:100%;border:1.5px solid #D4CEC3;border-radius:10px;padding:10px 12px;font-size:14.5px;font-family:inherit;background:#fff;outline:none;color:#1a1a1a}
+.ed-input:focus{border-color:#3B6D11}
+.ed-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ed-checks{display:flex;flex-wrap:wrap;gap:14px;font-size:14px;color:#333}
+.ed-checks label{display:flex;align-items:center;gap:6px;cursor:pointer}
+.ed-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding:8px;background:#fff;border:1.5px solid #D4CEC3;border-bottom:none;border-radius:10px 10px 0 0;position:sticky;top:-18px;z-index:2}
+.ed-toolbar button{background:#F5F4F0;border:1px solid #E2DED5;border-radius:7px;padding:6px 10px;font-size:13px;font-family:inherit;cursor:pointer;color:#333}
+.ed-toolbar button:hover{background:#EAF3DE;border-color:#BCD9A0}
+.ed-toolbar button.on{background:#3B6D11;color:#fff;border-color:#3B6D11}
+.ed-toolbar .ed-c.info{background:#E6F1FB;border-color:#B3D1F0;color:#0C447C}
+.ed-toolbar .ed-c.warn{background:#FFF4DC;border-color:#F0D58A;color:#7A5200}
+.ed-toolbar .ed-c.danger{background:#FCEBEB;border-color:#E9B4B4;color:#A32D2D}
+.ed-sep{width:1px;height:22px;background:#E2DED5;margin:0 4px}
+.ed-surface{background:#fff;border:1.5px solid #D4CEC3;border-radius:0 0 10px 10px;min-height:340px;padding:18px 20px;outline:none;overflow-y:visible;flex:none}
+.ed-surface:focus{border-color:#3B6D11}
+.ed-html{width:100%;min-height:340px;border:1.5px solid #D4CEC3;border-radius:0 0 10px 10px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;line-height:1.5;resize:vertical}
+.ed-hint{font-size:12px;color:#999;margin-top:8px}
+.editor-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 22px;border-top:1px solid #E2DED5;background:#fff;flex-wrap:wrap}
+.ed-foot-left,.ed-foot-right{display:flex;gap:8px;flex-wrap:wrap}
+@media(max-width:680px){
+  .admin-overlay.editor{padding:0;align-items:stretch}
+  .editor-modal{width:100%;height:100%;border-radius:0}
+  .ed-row{grid-template-columns:1fr}
+  .editor-scroll{padding:14px 14px 10px}
+  .ed-toolbar{top:-14px}
+}
