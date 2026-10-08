@@ -636,3 +636,15 @@ loadSopEdits();
     if(!isNaN(id))setTimeout(()=>openCard(id),150);
   }
 })();
+
+// ─── PRINT A FORM INSIDE AN SOP ──────────────────────────────
+function printSopForm(btn){
+  const area=btn.closest(".drawer-body").querySelector(".print-area");
+  if(!area)return;
+  const w=window.open("","_blank","width=900,height=1000");
+  if(!w){alert("Please allow pop-ups for this site to print the form.");return;}
+  const css="@page{margin:.6in}body{font-family:-apple-system,Helvetica,Arial,sans-serif;color:#111;font-size:12.5px;line-height:1.4}h2{font-size:17px;margin:0 0 14px}h3{font-size:13px;margin:20px 0 8px;text-transform:uppercase;letter-spacing:.6px}table{width:100%;border-collapse:collapse;margin-bottom:12px;page-break-inside:avoid}th,td{border:1px solid #444;padding:7px 9px;text-align:left;vertical-align:top}thead th{background:#eee}tbody th{width:38%;font-weight:600;background:#f7f7f7}td.entry{height:34px}.sig-table td.sig{width:34%;height:44px}.sub{font-weight:400;font-size:11px;color:#555}.form-agree{font-size:12px;margin:10px 0}";
+  w.document.write("<!doctype html><html><head><meta charset='utf-8'><title>"+document.getElementById("drawer-title").textContent+"</title><style>"+css+"</style></head><body>"+area.innerHTML+"</body></html>");
+  w.document.close();w.focus();
+  setTimeout(()=>w.print(),300);
+}
