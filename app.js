@@ -67,17 +67,6 @@ function getVisibleCards(){
     return !roleIds||roleIds.includes(c.id);
   });
 }
-function renderFilters(){
-  if(activeRole==="Today"){document.getElementById("filters").innerHTML="";return;}
-  const visible=getVisibleCards();
-  const cats=["All",...new Set(visible.map(c=>c.cat))];
-  document.getElementById("filters").innerHTML=cats.map(cat=>{
-    const info=CATS[cat];
-    return `<span class="chip${cat===activeCat?" active":""}" onclick="setFilter('${cat}')">${info?info.icon+" ":""}${cat}</span>`;
-  }).join("");
-}
-function setFilter(cat){activeCat=cat;renderFilters();render();}
-
 // ─── CARD GRID ───────────────────────────────────────────────
 function stripHTML(html){return html.replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim()}
 function preview(body){const t=stripHTML(body);return t.length>120?t.slice(0,120)+"…":t}
@@ -114,7 +103,6 @@ function renderOnboardView(){
   const total=ONBOARDING_PATH.length;
   const pct=Math.round((done.length/total)*100);
   document.getElementById("rcount").textContent="";
-  document.getElementById("filters").innerHTML="";
   const grid=document.getElementById("card-grid");
   grid.innerHTML=`<div style="grid-column:1/-1">
     <div class="onboard-header">
@@ -181,7 +169,7 @@ function render(){
 }
 
 function hl(text,q){return text.replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")})`,"gi"),"<mark>$1</mark>");}
-function renderAll(){renderRoleTabs();renderFilters();render();}
+function renderAll(){renderRoleTabs();render();}
 
 // ─── DETAIL DRAWER ───────────────────────────────────────────
 let currentCardId=null;
