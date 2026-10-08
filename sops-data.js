@@ -10,7 +10,7 @@ const CATS={
   "CNC & Tooling":{color:"#1B3A5C",bg:"#E8EFF8",icon:"⚙️"},
   "Team Policies":{color:"#4B2E83",bg:"#EFE9F8",icon:"👥"},
 };
-const ROLES=[{id:"Onboard",label:"Start Here",icon:"👋"},{id:"All",label:"All SOPs",icon:""},{id:"Sales",label:"Sales",icon:"💼"},{id:"Design",label:"Design",icon:"🎨"},{id:"Shipping",label:"Shipping",icon:"📦"},{id:"Finance",label:"Finance",icon:"💰"},{id:"Today",label:"Today's Activity",icon:"📅"}];
+const ROLES=[{id:"Onboard",label:"Start Here",icon:"👋"},{id:"All",label:"All SOPs",icon:""},{id:"Sales",label:"Sales",icon:"💼"},{id:"Design",label:"Design",icon:"🎨"},{id:"Shipping",label:"Shipping",icon:"📦"},{id:"Finance",label:"Finance",icon:"💰"},{id:"Policies",label:"Team Policies",icon:"👥"},{id:"Today",label:"Today's Activity",icon:"📅"}];
 const ONBOARDING_PATH=[15,3,16,17,8,5,6,4,25,26,34,35,1,2,7,9,10,22,27,28,18,19,20,21,29,30];
 const ROLE_IDS={"All":null,"Sales":[3,8,15,16,17,25,26,32,33,34,35],"Design":[1,2,4,5,6,7,9,10,22,27,28,29,30,32,33,36,37,38],"Shipping":[18,19,20,21,25],"Finance":[35]};
 const DEFAULT_PINNED={"All":[15,20,7,3],"Sales":[15,35,34,33],"Design":[1,4,27,7],"Shipping":[20,19,21,18],"Finance":[35]};

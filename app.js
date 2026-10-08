@@ -62,6 +62,7 @@ function setRole(id){
 // ─── FILTERS ─────────────────────────────────────────────────
 function getVisibleCards(){
   const all=getAllCards();const roleIds=ROLE_IDS[activeRole];
+  if(activeRole==="Policies")return all.filter(c=>c.cat==="Team Policies");
   return all.filter(c=>{
     if(c.isCustom||c.isAdded){return activeRole==="All"||!c.roles||c.roles.length===0||c.roles.includes(activeRole);}
     return !roleIds||roleIds.includes(c.id);
