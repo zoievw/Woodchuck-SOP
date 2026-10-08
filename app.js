@@ -129,32 +129,31 @@ function renderOnboardView(){
   </div>`;
 }
 
-function render(){
-  if(activeRole==="Today"){renderTodayView();return;}
-  if(activeRole==="Onboard"){renderOnboardView();return;}
-  const q=document.getElementById("search").value.toLowerCase().trim();
-  const visible=getVisibleCards();
-  const filtered=visible.filter(c=>{
-    const inCat=activeCat==="All"||c.cat===activeCat;
-    const inQ=!q||[c.title,c.cat,...(c.tags||[])].join(" ").toLowerCase().includes(q);
-    return inCat&&inQ;
-  });
-  document.getElementById("rcount").textContent=filtered.length+" result"+(filtered.length!==1?"s":"");
-  const grid=document.getElementById("card-grid");
-  if(!filtered.length){
-    grid.innerHTML=`<div class="empty"><div class="empty-icon">🔍</div><div class="empty-title">No results found</div><div class="empty-sub">Try different keywords, or use Spruce AI Help to find the right SOP.</div><button class="empty-ai-btn" onclick="openAI()">Open Spruce AI Help</button></div>`;
-    return;
-  }
-  const clicks=getClicks();
-  grid.innerHTML=filtered.map(c=>{
-    const cat=CATS[c.cat]||{color:"#555",bg:"#eee",icon:""};
-    const cnt=clicks[c.id]||0;
-    const title=q?hl(c.title,q):c.title;
-    const isNew=isRecentlyUpdated(c.updated);
-    return `<button class="card-tile" onclick="openCard(${c.id})">
+function searchTokens(q){return q.split(/\s+/).filter(Boolean)}
+function hlWords(text,tokens){
+  if(!tokens.length)return text;
+  const re=new RegExp("("+tokens.map(t=>t.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")","gi");
+  return text.split(/(&[a-z#0-9]+;)/i).map(p=>/^&[a-z#0-9]+;$/i.test(p)?p:p.replace(re,"<mark>$1</mark>")).join("");
+}
+function plainText(html){return stripHTML(html).replace(/&nbsp;/g," ").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&amp;/g,"&")}
+function escHtml(t){return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+function bodySnippet(body,tokens){
+  const t=plainText(body),low=t.toLowerCase();let i=-1;
+  for(const k of tokens){i=low.indexOf(k);if(i>=0)break;}
+  if(i<0)return preview(body);
+  const s=Math.max(0,i-55),e=Math.min(t.length,i+95);
+  return escHtml((s>0?"… ":"")+t.slice(s,e).trim()+(e<t.length?" …":""));
+}
+function cardTile(c,tokens,clicks){
+  const cat=CATS[c.cat]||{color:"#555",bg:"#eee",icon:""};
+  const cnt=clicks[c.id]||0;
+  const title=tokens.length?hlWords(c.title,tokens):c.title;
+  const prev=tokens.length?hlWords(bodySnippet(c.body,tokens),tokens):preview(c.body);
+  const isNew=isRecentlyUpdated(c.updated);
+  return `<button class="card-tile" onclick="openCard(${c.id})">
       <div class="tile-cat" style="color:${cat.color}">${cat.icon} ${c.cat}</div>
       <div class="tile-title">${title}</div>
-      <div class="tile-preview">${preview(c.body)}</div>
+      <div class="tile-preview">${prev}</div>
       <div class="tile-bottom">
         <span class="tile-open">View SOP <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
         <div style="display:flex;gap:6px;align-items:center">
@@ -165,6 +164,47 @@ function render(){
       </div>
       ${c.updated?`<div class="tile-date">Updated ${c.updated}</div>`:""}
     </button>`;
+}
+function render(){
+  if(activeRole==="Today"){renderTodayView();return;}
+  if(activeRole==="Onboard"){renderOnboardView();return;}
+  const q=document.getElementById("search").value.toLowerCase().trim();
+  const tokens=searchTokens(q);
+  let filtered=getVisibleCards().filter(c=>activeCat==="All"||c.cat===activeCat);
+  if(tokens.length){
+    filtered=filtered.map(c=>{
+      const title=c.title.replace(/&amp;/g,"&").toLowerCase();
+      const meta=[c.cat,...(c.tags||[])].join(" ").toLowerCase();
+      const hay=title+" "+meta+" "+plainText(c.body).toLowerCase();
+      if(!tokens.every(k=>hay.includes(k)))return null;
+      let score=1;
+      if(tokens.every(k=>title.includes(k)))score+=10;
+      else score+=tokens.filter(k=>title.includes(k)).length*3;
+      score+=tokens.filter(k=>meta.includes(k)).length*2;
+      return {c,score};
+    }).filter(Boolean).sort((a,b)=>b.score-a.score).map(x=>x.c);
+  }
+  const n=filtered.length;
+  document.getElementById("rcount").textContent=tokens.length
+    ?n+" result"+(n!==1?"s":"")+" for “"+q+"”"
+    :n+" SOP"+(n!==1?"s":"");
+  const grid=document.getElementById("card-grid");
+  if(!n){
+    grid.innerHTML=`<div class="empty"><div class="empty-icon">🔍</div><div class="empty-title">No results found</div><div class="empty-sub">Try different keywords — a product name, a fee, a step, or a tool like HubSpot or Odoo.</div></div>`;
+    return;
+  }
+  const clicks=getClicks();
+  if(tokens.length){
+    grid.innerHTML=filtered.map(c=>cardTile(c,tokens,clicks)).join("");
+    return;
+  }
+  const order=Object.keys(CATS),groups={};
+  filtered.forEach(c=>(groups[c.cat]=groups[c.cat]||[]).push(c));
+  const cats=[...order.filter(k=>groups[k]),...Object.keys(groups).filter(k=>!order.includes(k))];
+  grid.innerHTML=cats.map(k=>{
+    const info=CATS[k]||{color:"#555",icon:""};
+    return `<div class="cat-heading" style="color:${info.color}"><span>${info.icon} ${k}</span><span class="cat-count">${groups[k].length}</span></div>`
+      +groups[k].map(c=>cardTile(c,[],clicks)).join("");
   }).join("");
 }
 
