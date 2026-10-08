@@ -41,20 +41,6 @@ function trackDailyAccess(id){try{const today=todayStr();const d=JSON.parse(loca
 function trackClick(id){try{const d=JSON.parse(localStorage.getItem("wc_clicks")||"{}");d[id]=(d[id]||0)+1;localStorage.setItem("wc_clicks",JSON.stringify(d));}catch{}}
 function getClicks(){try{return JSON.parse(localStorage.getItem("wc_clicks")||"{}")}catch{return{}}}
 
-function getDynamicPinned(role){
-  const clicks=getClicks();const all=getAllCards();
-  const roleIds=ROLE_IDS[role];
-  const eligible=roleIds?all.filter(c=>roleIds.includes(c.id)||c.roles?.includes(role)):all;
-  const sorted=eligible.filter(c=>clicks[c.id]>0).sort((a,b)=>(clicks[b.id]||0)-(clicks[a.id]||0));
-  const result=sorted.slice(0,4);
-  if(result.length<4){
-    const defs=DEFAULT_PINNED[role]||DEFAULT_PINNED["All"];
-    const ex=result.map(c=>c.id);
-    defs.forEach(id=>{if(!ex.includes(id)&&result.length<4){const c=all.find(x=>x.id===id);if(c)result.push(c);}});
-  }
-  return result;
-}
-
 // ─── ROLE NAV ───────────────────────────────────────────────
 function renderRoleTabs(){
   document.getElementById("role-nav").innerHTML=ROLES.map(r=>
@@ -66,29 +52,11 @@ function setRole(id){
   document.getElementById("search").value="";
   const isToday=id==="Today";
   const isOnboard=id==="Onboard";
-  document.getElementById("qa-wrap").style.display=(isToday||isOnboard)?"none":"";
   document.getElementById("search-wrap").style.display=(isToday||isOnboard)?"none":"";
   // sync bottom nav
   document.querySelectorAll(".bn-item").forEach(el=>el.classList.remove("active"));
   const bn=document.getElementById("bn-"+id);if(bn)bn.classList.add("active");
   renderAll();
-}
-
-// ─── QUICK ACCESS ────────────────────────────────────────────
-function renderQuickAccess(){
-  const cards=getDynamicPinned(activeRole);const clicks=getClicks();
-  document.getElementById("qa-grid").innerHTML=cards.map(c=>{
-    const cat=CATS[c.cat]||{color:"#555",bg:"#eee",icon:""};
-    const cnt=clicks[c.id]||0;
-    return `<button class="qa-tile" onclick="openCard(${c.id})">
-      <div class="qa-cat" style="color:${cat.color}">${cat.icon} ${c.cat}</div>
-      <div class="qa-title">${c.title}</div>
-      <div class="qa-footer">
-        <span class="qa-cta">Open →</span>
-        ${cnt>0?`<span class="qa-heat">🔥 ${cnt}</span>`:""}
-      </div>
-    </button>`;
-  }).join("");
 }
 
 // ─── FILTERS ─────────────────────────────────────────────────
@@ -213,7 +181,7 @@ function render(){
 }
 
 function hl(text,q){return text.replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")})`,"gi"),"<mark>$1</mark>");}
-function renderAll(){renderRoleTabs();renderQuickAccess();renderFilters();render();}
+function renderAll(){renderRoleTabs();renderFilters();render();}
 
 // ─── DETAIL DRAWER ───────────────────────────────────────────
 let currentCardId=null;
@@ -234,7 +202,7 @@ function openCard(id){
   currentCardId=id;trackClick(id);trackDailyAccess(id);
   // Update URL hash for shareable link
   history.replaceState(null,'','#sop-'+id);
-  renderQuickAccess();render();
+  render();
   const cat=CATS[card.cat]||{color:"#555",bg:"#eee",icon:""};
   const el=document.getElementById("drawer-cat");
   el.textContent=cat.icon+" "+card.cat;el.style.background=cat.bg;el.style.color=cat.color;
