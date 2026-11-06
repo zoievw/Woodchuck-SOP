@@ -25,11 +25,39 @@ let wcCheckState = {}; // checklist checked state per card
 function getCustomCards(){try{return JSON.parse(localStorage.getItem("wc_custom")||"[]")}catch{return[]}}
 function saveCustomCards(arr){localStorage.setItem("wc_custom",JSON.stringify(arr))}
 let SOP_REMOTE={edits:{},added:[],deleted:[]};
+const TC_SMALL=new Set(["a","an","and","as","at","but","by","for","in","nor","of","off","on","or","per","so","the","to","up","via","vs","yet"]);
+const TC_ACRONYMS=new Set(["SOP","UPS","LTL","PPC","CNC","QA","VD","PDF","ERP","HR","JCK","PO","FIFO","QBO","USA","ACM","MDF","PU","ECO","ID"]);
+function titleCase(t){
+  if(!t)return t;
+  const letters=t.replace(/[^A-Za-z]/g,"");
+  const allCaps=letters.length>3&&letters===letters.toUpperCase();
+  const toks=t.split(/(\s+)/);
+  let lastWord=-1;toks.forEach((k,i)=>{if(/[A-Za-z]/.test(k)&&!/^&[a-z#0-9]+;$/i.test(k))lastWord=i;});
+  let first=true;
+  return toks.map((tok,i)=>{
+    if(!tok||/^\s+$/.test(tok))return tok;
+    if(/^&[a-z#0-9]+;$/i.test(tok)||!/[A-Za-z0-9]/.test(tok)){if(/^[—–]$/.test(tok))first=true;return tok;}
+    const m=tok.match(/^([("'“\[]*)(.*?)([)"'”\],.:;!?]*)$/);
+    const lead=m[1],core=m[2],trail=m[3];
+    const out=core.split("-").map((part,j)=>{
+      if(!part)return part;
+      const upper=part.toUpperCase();
+      if(/^[A-Z0-9]{2,}$/.test(part)&&(TC_ACRONYMS.has(part)||!allCaps))return part;
+      if(allCaps&&TC_ACRONYMS.has(upper))return upper;
+      if(!allCaps&&/[A-Z]/.test(part.slice(1)))return part;
+      const small=TC_SMALL.has(part.toLowerCase())&&!(j===0&&(first||i===lastWord))&&j===0;
+      if(small)return part.toLowerCase();
+      return part.charAt(0).toUpperCase()+part.slice(1).toLowerCase();
+    }).join("-");
+    first=trail.includes(":");
+    return lead+out+trail;
+  }).join("");
+}
 function getAllCards(){
   const gone=new Set(SOP_REMOTE.deleted||[]);
   const base=BUILTIN.filter(c=>!gone.has(c.id)).map(c=>SOP_REMOTE.edits[c.id]?{...c,...SOP_REMOTE.edits[c.id],edited:true}:c);
   const added=(SOP_REMOTE.added||[]).filter(c=>!gone.has(c.id)).map(c=>({...c,isAdded:true}));
-  return [...base,...added,...getCustomCards().map(c=>({...c,isCustom:true}))];
+  return [...base,...added,...getCustomCards().map(c=>({...c,isCustom:true}))].map(c=>({...c,title:titleCase(c.title)}));
 }
 
 // ─── DAILY TRACKING ─────────────────────────────────────────
