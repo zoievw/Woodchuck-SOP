@@ -583,8 +583,8 @@
         </div>
         <div class="qf-field"><label>Order # *</label><input type="text" id="qf-order" placeholder="e.g. WS-10234"></div>
         <div class="qf-field"><label>Quality Issue Reported *</label><textarea id="qf-issue" placeholder="Describe the issue clearly…"></textarea></div>
-        <div class="qf-field"><label>Department responsible</label><select id="qf-category" onchange="qfCategoryChanged()"><option value="">Select…</option><option>Assembly</option><option>Design</option><option>Shipping &amp; Receiving</option><option>Sales</option><option>MGMT</option><option>Purchasing</option><option>Vendor</option></select></div>
-        <div class="qf-field" id="qf-sub-wrap" style="display:none"><label>Vendor type *</label><select id="qf-subcategory"><option value="">Select…</option><option>Foam Vendor</option><option>Print Vendor</option><option>Wood Vendor</option></select></div>
+        <div class="qf-field"><label>Department responsible</label><select id="qf-category" onchange="qfCategoryChanged()"><option value="">Select…</option></select></div>
+        <div class="qf-field" id="qf-sub-wrap" style="display:none"><label id="qf-sub-label">Type of issue *</label><select id="qf-subcategory"><option value="">Select…</option></select></div>
         <div class="qf-grid2">
           <div class="qf-field"><label>Severity</label><select id="qf-severity"><option value="">Select…</option><option value="1">High</option><option value="2">Medium</option><option value="3">Low</option></select></div>
           <div class="qf-field"><label>Dollar Impact ($)</label><input type="number" id="qf-dollar" placeholder="0.00" min="0" step="0.01"></div>
@@ -610,8 +610,8 @@
         </div>
         <div id="qf-list-wrap" style="display:none">
           <div class="qf-list-controls">
-            <div class="qf-filter"><label>Department</label><select id="qf-filter-dept" onchange="renderSubmissions()"><option value="">All departments</option><option>Assembly</option><option>Design</option><option>Shipping &amp; Receiving</option><option>Sales</option><option>MGMT</option><option>Purchasing</option><option>Vendor</option></select></div>
-            <div class="qf-filter" id="qf-filter-sub-wrap" style="display:none"><label>Vendor type</label><select id="qf-filter-sub" onchange="renderSubmissions()"><option value="">All vendor types</option><option>Foam Vendor</option><option>Print Vendor</option><option>Wood Vendor</option></select></div>
+            <div class="qf-filter"><label>Department</label><select id="qf-filter-dept" onchange="renderSubmissions()"><option value="">All departments</option></select></div>
+            <div class="qf-filter" id="qf-filter-sub-wrap" style="display:none"><label id="qf-filter-sub-label">Type of issue</label><select id="qf-filter-sub" onchange="renderSubmissions()"><option value="">All issue types</option></select></div>
             <div class="qf-filter"><label>Reported by</label><select id="qf-filter-person" onchange="renderSubmissions()"><option value="">Anyone</option></select></div>
             <button class="qf-refresh" onclick="loadSubmissions()">↻ Refresh</button>
           </div>
@@ -625,19 +625,39 @@
 
 <script>
 let _qfSubs = [], _qfPass = '', _qfUnlocked = false;
-const QF_DEPTS = ['Assembly', 'Design', 'Shipping & Receiving', 'Sales', 'MGMT', 'Purchasing', 'Vendor'];
-const QF_VENDOR_TYPES = ['Foam Vendor', 'Print Vendor', 'Wood Vendor'];
+const QF_DEPTS = ['Assembly', 'Design', 'Lasers', 'Shipping & Receiving', 'Sales', 'MGMT', 'Purchasing', 'Vendor'];
+const QF_SUBS = {
+  'MGMT': ['Process Break', 'Communication Breakdown', 'Missed Timeline'],
+  'Assembly': ['Assembled Incorrectly', 'Damaged in Assembly', 'Over Assembled / Produced', 'Items Missed', 'Process Break'],
+  'Design': ['Designed Incorrectly', 'Layout Issue', 'Missing Items (Layout/Design File)', 'Mockup Issue', 'Design File Name Incorrect'],
+  'Lasers': ['Poor Engraving Quality', 'Incorrect Material Used', 'Burning', 'Issue Not Communicated', 'Process Break'],
+  'Sales': ['Process Break', 'Sales Order Issue', 'Shipping Issue', 'Product Issue', 'Margin Issue'],
+  'Shipping & Receiving': ['Process Break', 'Sent to Wrong Address', 'Shipped Late'],
+  'Purchasing': ['Out of Stock', 'Ordered Late', 'Not Enough Ordered', 'Process Break', 'Incorrect Material Ordered'],
+  'Vendor': ['Foam Vendor', 'Print Vendor', 'Wood Vendor']
+};
+const QF_VENDOR_TYPES = QF_SUBS['Vendor'];
 const QF_LEGACY = { 'Shipping': 'Shipping & Receiving' };
+function qfSubLabel(dept) { return dept === 'Vendor' ? 'Vendor type' : 'Type of issue'; }
 function qfNorm(s) {
   const c = s.category || '';
   if (QF_VENDOR_TYPES.includes(c)) return { dept: 'Vendor', sub: c };
   return { dept: QF_LEGACY[c] || c, sub: s.sub_category || '' };
 }
 function qfCategoryChanged() {
-  const isVendor = document.getElementById('qf-category').value === 'Vendor';
-  document.getElementById('qf-sub-wrap').style.display = isVendor ? '' : 'none';
-  if (!isVendor) document.getElementById('qf-subcategory').value = '';
+  const dept = document.getElementById('qf-category').value;
+  const subs = QF_SUBS[dept] || [];
+  const wrap = document.getElementById('qf-sub-wrap');
+  const sel = document.getElementById('qf-subcategory');
+  if (!subs.length) { wrap.style.display = 'none'; sel.innerHTML = '<option value="">Select…</option>'; return; }
+  document.getElementById('qf-sub-label').textContent = qfSubLabel(dept) + ' *';
+  sel.innerHTML = '<option value="">Select…</option>' + subs.map(o => `<option>${qfEsc(o)}</option>`).join('');
+  wrap.style.display = '';
 }
+(function qfInitLists() {
+  document.getElementById('qf-category').innerHTML = '<option value="">Select…</option>' + QF_DEPTS.map(d => `<option>${qfEsc(d)}</option>`).join('');
+  document.getElementById('qf-filter-dept').innerHTML = '<option value="">All departments</option>' + QF_DEPTS.map(d => `<option>${qfEsc(d)}</option>`).join('');
+})();
 
 function openQualityFeedback() {
   document.getElementById('quality-overlay').classList.add('open');
@@ -699,7 +719,7 @@ async function submitQualityReport() {
     order_number: g('qf-order').value.trim(),
     quality_issue: g('qf-issue').value.trim(),
     category: g('qf-category').value || null,
-    sub_category: g('qf-category').value === 'Vendor' ? (g('qf-subcategory').value || null) : null,
+    sub_category: QF_SUBS[g('qf-category').value] ? (g('qf-subcategory').value || null) : null,
     severity: g('qf-severity').value || null,
     dollar_impact: g('qf-dollar').value || null,
     reported_by: g('qf-reporter').value.trim() || null,
@@ -711,9 +731,9 @@ async function submitQualityReport() {
     msg.textContent = 'Project/customer, order #, and issue are required.';
     return;
   }
-  if (payload.category === 'Vendor' && !payload.sub_category) {
+  if (QF_SUBS[payload.category] && !payload.sub_category) {
     msg.className = 'qf-msg err';
-    msg.textContent = 'Please choose the vendor type (Foam, Print, or Wood).';
+    msg.textContent = 'Please choose the ' + qfSubLabel(payload.category).toLowerCase() + '.';
     return;
   }
   const btn = g('qf-submit-btn');
@@ -781,11 +801,23 @@ function renderSubmissions() {
   const dept = (document.getElementById('qf-filter-dept') || {}).value || '';
   const subWrap = document.getElementById('qf-filter-sub-wrap');
   const subSel = document.getElementById('qf-filter-sub');
+  const subList = QF_SUBS[dept] || [];
   if (subWrap && subSel) {
-    subWrap.style.display = dept === 'Vendor' ? '' : 'none';
-    if (dept !== 'Vendor') subSel.value = '';
+    if (!subList.length) {
+      subWrap.style.display = 'none';
+      subSel.value = '';
+      subSel.dataset.dept = '';
+    } else {
+      subWrap.style.display = '';
+      if (subSel.dataset.dept !== dept) {
+        const extra = [...new Set(_qfSubs.map(x => qfNorm(x)).filter(n => n.dept === dept && n.sub && !subList.includes(n.sub)).map(n => n.sub))];
+        subSel.innerHTML = '<option value="">All ' + (dept === 'Vendor' ? 'vendor types' : 'issue types') + '</option>' + [...subList, ...extra].map(o => `<option>${qfEsc(o)}</option>`).join('');
+        subSel.dataset.dept = dept;
+        document.getElementById('qf-filter-sub-label').textContent = qfSubLabel(dept);
+      }
+    }
   }
-  const sub = subSel ? subSel.value : '';
+  const sub = subList.length && subSel ? subSel.value : '';
   const person = (document.getElementById('qf-filter-person') || {}).value || '';
   let rows = _qfSubs.slice();
   if (dept) rows = rows.filter(s => qfNorm(s).dept === dept);
@@ -809,7 +841,7 @@ function renderSubmissions() {
     const rowsHtml = grp.items.map(s => {
       const sev = s.severity ? `<span class="qf-pill sev-${s.severity}">${sevLabel[s.severity] || ''}</span>` : '';
       const nd = qfNorm(s);
-      const dep = s.category ? `<span class="qf-pill dept">${qfEsc(nd.sub || nd.dept)}</span>` : '';
+      const dep = s.category ? `<span class="qf-pill dept">${qfEsc(nd.dept)}</span>` + (nd.sub ? `<span class="qf-pill sub">${qfEsc(nd.sub)}</span>` : '') : '';
       const dollar = (s.dollar_impact != null && s.dollar_impact !== '') ? `<span>💲 $${Number(s.dollar_impact).toLocaleString()}</span>` : '';
       const who = s.reported_by ? `<span>👤 ${qfEsc(s.reported_by)}</span>` : '';
       const when = new Date(s.date || s.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });

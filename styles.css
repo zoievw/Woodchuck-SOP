@@ -642,3 +642,4 @@ mark{background:#EAF3DE;color:#27500A;border-radius:3px;padding:0 3px}
 /* ── Download button inside SOPs ── */
 .drawer-body a.dl-btn{display:inline-flex;align-items:center;gap:8px;background:#3B6D11;color:#fff;border-radius:10px;padding:11px 18px;font-size:14px;font-weight:700;text-decoration:none;margin:2px 0 14px}
 .drawer-body a.dl-btn:hover{background:#2f5a0d;color:#fff}
+.qf-pill.sub{background:transparent;border:1px solid #4a6275;color:#a9cfe6}
