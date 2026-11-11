@@ -583,7 +583,7 @@
         </div>
         <div class="qf-field"><label>Order # *</label><input type="text" id="qf-order" placeholder="e.g. WS-10234"></div>
         <div class="qf-field"><label>Quality Issue Reported *</label><textarea id="qf-issue" placeholder="Describe the issue clearly…"></textarea></div>
-        <div class="qf-field"><label>Department responsible</label><select id="qf-category"><option value="">Select…</option><option>Assembly</option><option>Design</option><option>QA</option><option>Shipping</option><option>Sales</option><option>R&amp;D</option><option>MGMT</option><option>Foam Vendor</option><option>Print Vendor</option><option>Wood Vendor</option></select></div>
+        <div class="qf-field"><label>Department responsible</label><select id="qf-category"><option value="">Select…</option><option>Assembly</option><option>Design</option><option>Shipping &amp; Receiving</option><option>Sales</option><option>MGMT</option><option>Purchasing</option><option>Foam Vendor</option><option>Print Vendor</option><option>Wood Vendor</option></select></div>
         <div class="qf-grid2">
           <div class="qf-field"><label>Severity</label><select id="qf-severity"><option value="">Select…</option><option value="1">High</option><option value="2">Medium</option><option value="3">Low</option></select></div>
           <div class="qf-field"><label>Dollar Impact ($)</label><input type="number" id="qf-dollar" placeholder="0.00" min="0" step="0.01"></div>
@@ -609,7 +609,7 @@
         </div>
         <div id="qf-list-wrap" style="display:none">
           <div class="qf-list-controls">
-            <div class="qf-filter"><label>Department</label><select id="qf-filter-dept" onchange="renderSubmissions()"><option value="">All departments</option><option>Assembly</option><option>Design</option><option>QA</option><option>Shipping</option><option>Sales</option><option>R&amp;D</option><option>MGMT</option><option>Foam Vendor</option><option>Print Vendor</option><option>Wood Vendor</option></select></div>
+            <div class="qf-filter"><label>Department</label><select id="qf-filter-dept" onchange="renderSubmissions()"><option value="">All departments</option><option>Assembly</option><option>Design</option><option>Shipping &amp; Receiving</option><option>Sales</option><option>MGMT</option><option>Purchasing</option><option>Foam Vendor</option><option>Print Vendor</option><option>Wood Vendor</option></select></div>
             <div class="qf-filter"><label>Reported by</label><select id="qf-filter-person" onchange="renderSubmissions()"><option value="">Anyone</option></select></div>
             <button class="qf-refresh" onclick="loadSubmissions()">↻ Refresh</button>
           </div>
@@ -623,7 +623,9 @@
 
 <script>
 let _qfSubs = [], _qfPass = '', _qfUnlocked = false;
-const QF_DEPTS = ['Assembly', 'Design', 'QA', 'Shipping', 'Sales', 'R&D', 'MGMT', 'Foam Vendor', 'Print Vendor', 'Wood Vendor'];
+const QF_DEPTS = ['Assembly', 'Design', 'Shipping & Receiving', 'Sales', 'MGMT', 'Purchasing', 'Foam Vendor', 'Print Vendor', 'Wood Vendor'];
+const QF_LEGACY = { 'Shipping': 'Shipping & Receiving' };
+function qfDept(c) { return QF_LEGACY[c] || c; }
 
 function openQualityFeedback() {
   document.getElementById('quality-overlay').classList.add('open');
@@ -743,7 +745,7 @@ async function loadSubmissions() {
     const dsel = document.getElementById('qf-filter-dept');
     if (dsel) {
       const cur = dsel.value;
-      const extra = [...new Set(_qfSubs.map(s => s.category).filter(c => c && !QF_DEPTS.includes(c)))].sort();
+      const extra = [...new Set(_qfSubs.map(s => qfDept(s.category)).filter(c => c && !QF_DEPTS.includes(c)))].sort();
       dsel.innerHTML = '<option value="">All departments</option>' + [...QF_DEPTS, ...extra].map(d => `<option${d === cur ? ' selected' : ''}>${qfEsc(d)}</option>`).join('');
     }
     renderSubmissions();
@@ -760,7 +762,7 @@ function renderSubmissions() {
   const dept = (document.getElementById('qf-filter-dept') || {}).value || '';
   const person = (document.getElementById('qf-filter-person') || {}).value || '';
   let rows = _qfSubs.slice();
-  if (dept) rows = rows.filter(s => (s.category || '') === dept);
+  if (dept) rows = rows.filter(s => qfDept(s.category || '') === dept);
   if (person) rows = rows.filter(s => (s.reported_by || '') === person);
   if (!rows.length) { list.innerHTML = '<div class="qf-empty">No submissions yet.</div>'; return; }
 
@@ -779,7 +781,7 @@ function renderSubmissions() {
     grp.items.sort((a, b) => new Date(b.date || b.created_at) - new Date(a.date || a.created_at));
     const rowsHtml = grp.items.map(s => {
       const sev = s.severity ? `<span class="qf-pill sev-${s.severity}">${sevLabel[s.severity] || ''}</span>` : '';
-      const dep = s.category ? `<span class="qf-pill dept">${qfEsc(s.category)}</span>` : '';
+      const dep = s.category ? `<span class="qf-pill dept">${qfEsc(qfDept(s.category))}</span>` : '';
       const dollar = (s.dollar_impact != null && s.dollar_impact !== '') ? `<span>💲 $${Number(s.dollar_impact).toLocaleString()}</span>` : '';
       const who = s.reported_by ? `<span>👤 ${qfEsc(s.reported_by)}</span>` : '';
       const when = new Date(s.date || s.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
