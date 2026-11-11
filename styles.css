@@ -643,3 +643,50 @@ mark{background:#EAF3DE;color:#27500A;border-radius:3px;padding:0 3px}
 .drawer-body a.dl-btn{display:inline-flex;align-items:center;gap:8px;background:#3B6D11;color:#fff;border-radius:10px;padding:11px 18px;font-size:14px;font-weight:700;text-decoration:none;margin:2px 0 14px}
 .drawer-body a.dl-btn:hover{background:#2f5a0d;color:#fff}
 .qf-pill.sub{background:transparent;border:1px solid #4a6275;color:#a9cfe6}
+
+/* ── Quality Feedback: Reports tab ── */
+.qf-tab{padding:9px 14px}
+@media(max-width:480px){.qf-tabs{padding:12px 10px 0}.qf-tab{padding:9px 9px;font-size:12.5px}}
+.qf-rep-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.qf-spacer{flex:1}
+.qf-seg{display:inline-flex;border:1px solid #3a3834;border-radius:9px;overflow:hidden}
+.qf-seg button{background:#242420;border:none;color:#9A9690;font-size:12.5px;font-weight:600;padding:8px 13px;cursor:pointer;font-family:inherit}
+.qf-seg button.on{background:#F5A623;color:#1A1916}
+.qf-rep-select{background:#242420;border:1px solid #3a3834;border-radius:8px;color:#E8E4DC;font-size:13px;padding:8px 10px;outline:none}
+.qf-rep-controls .qf-refresh{margin-left:0}
+.qf-ship{background:#211f1b;border:1px solid #322f2b;border-radius:10px;padding:12px 14px;margin-bottom:14px}
+.qf-ship-title{font-size:12px;font-weight:700;color:#C8C4BC;margin-bottom:8px}
+.qf-ship-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.qf-ship-field{display:flex;flex-direction:column;gap:4px}
+.qf-ship-field label{font-size:11px;color:#9A9690;font-weight:600}
+.qf-ship-field input{width:104px;background:#242420;border:1px solid #3a3834;border-radius:8px;color:#E8E4DC;font-size:14px;padding:8px 10px;outline:none}
+.qf-ship-field input:focus{border-color:#F5A623}
+.qf-ship-note{font-size:12px;color:#8a867f;line-height:1.5}
+.qf-ship-msg{font-size:12.5px;font-weight:600}
+.qf-rep-note{font-size:12px;color:#c9a44a;background:#2a2518;border:1px solid #4a3f20;border-radius:8px;padding:8px 11px;margin-bottom:12px;line-height:1.5}
+.qf-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:6px}
+@media(max-width:560px){.qf-cards{grid-template-columns:1fr 1fr}}
+.qf-card{background:#211f1b;border:1px solid #322f2b;border-radius:10px;padding:12px 13px}
+.qf-card-label{font-size:10.5px;font-weight:700;color:#8a867f;text-transform:uppercase;letter-spacing:.5px}
+.qf-card-value{font-size:22px;font-weight:800;color:#E8E4DC;margin-top:4px}
+.qf-card-sub{font-size:11.5px;margin-top:3px;color:#8a867f;min-height:14px}
+.qf-up{color:#f08a7a}
+.qf-down{color:#8fc96f}
+.qf-sec-title{font-size:12px;font-weight:800;color:#F5A623;text-transform:uppercase;letter-spacing:.6px;margin:20px 0 8px;padding-bottom:6px;border-bottom:1px solid #3a3834}
+.qf-tbl-wrap{overflow-x:auto}
+.qf-tbl{width:100%;border-collapse:collapse;font-size:12.5px;min-width:540px}
+.qf-tbl th{text-align:right;font-size:10.5px;font-weight:700;color:#8a867f;text-transform:uppercase;letter-spacing:.4px;padding:7px 8px;border-bottom:1px solid #3a3834}
+.qf-tbl td{text-align:right;padding:9px 8px;border-bottom:1px solid #2b2926;color:#C8C4BC}
+.qf-tbl th:first-child,.qf-tbl td:first-child{text-align:left}
+.qf-tbl td:first-child{color:#E8E4DC;font-weight:700}
+.qf-bar-row{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:12.5px;color:#C8C4BC}
+.qf-bar-label{flex:0 0 46%;min-width:0}
+.qf-bar-track{flex:1;background:#2b2926;border-radius:6px;height:10px;overflow:hidden}
+.qf-bar-fill{height:100%;background:#F5A623;border-radius:6px}
+.qf-bar-n{flex:0 0 28px;text-align:right;font-weight:700;color:#E8E4DC}
+.qf-trend{display:flex;gap:10px;align-items:flex-end;height:165px;padding-top:6px}
+.qf-trend-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px}
+.qf-trend-bar{width:70%;max-width:46px;background:#F5A623;border-radius:5px 5px 0 0;min-height:2px}
+.qf-trend-n{font-size:12px;font-weight:700;color:#E8E4DC}
+.qf-trend-m{font-size:11px;color:#9A9690}
+.qf-trend-r{font-size:10.5px;color:#8a867f}

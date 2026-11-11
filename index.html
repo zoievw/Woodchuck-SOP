@@ -571,6 +571,7 @@
     <div class="qf-tabs">
       <button class="qf-tab active" id="qf-tab-submit" onclick="switchQualityTab('submit')">Submit a report</button>
       <button class="qf-tab" id="qf-tab-list" onclick="switchQualityTab('list')">Submissions</button>
+      <button class="qf-tab" id="qf-tab-reports" onclick="switchQualityTab('reports')">Reports</button>
     </div>
     <div class="qf-body">
 
@@ -603,8 +604,8 @@
           <div class="qf-gate-card">
             <div class="qf-gate-lock">🔒</div>
             <div class="qf-gate-title">Enter passcode to view submissions</div>
-            <input type="password" id="qf-pass" placeholder="Passcode" autocomplete="off" onkeydown="if(event.key==='Enter')unlockSubmissions()">
-            <button class="qf-submit-btn" onclick="unlockSubmissions()">Unlock</button>
+            <input type="password" id="qf-pass" placeholder="Passcode" autocomplete="off" onkeydown="if(event.key==='Enter')unlockSubmissions('list')">
+            <button class="qf-submit-btn" onclick="unlockSubmissions('list')">Unlock</button>
             <div class="qf-gate-msg" id="qf-gate-msg"></div>
           </div>
         </div>
@@ -616,6 +617,34 @@
             <button class="qf-refresh" onclick="loadSubmissions()">↻ Refresh</button>
           </div>
           <div class="qf-list" id="qf-list"></div>
+        </div>
+      </div>
+
+      <!-- REPORTS PANEL -->
+      <div class="qf-panel" id="qf-panel-reports">
+        <div class="qf-gate" id="qf-gate-r">
+          <div class="qf-gate-card">
+            <div class="qf-gate-lock">🔒</div>
+            <div class="qf-gate-title">Enter passcode to view reports</div>
+            <input type="password" id="qf-pass-r" placeholder="Passcode" autocomplete="off" onkeydown="if(event.key==='Enter')unlockSubmissions('reports')">
+            <button class="qf-submit-btn" onclick="unlockSubmissions('reports')">Unlock</button>
+            <div class="qf-gate-msg" id="qf-gate-msg-r"></div>
+          </div>
+        </div>
+        <div id="qf-reports-wrap" style="display:none">
+          <div class="qf-rep-controls">
+            <div class="qf-seg">
+              <button data-view="month" onclick="qfSetView('month')">Month</button>
+              <button data-view="quarter" onclick="qfSetView('quarter')">Quarter</button>
+              <button data-view="all" onclick="qfSetView('all')">All time</button>
+            </div>
+            <select id="qf-rep-period" class="qf-rep-select" onchange="qfSetPeriod(this.value)"></select>
+            <span class="qf-spacer"></span>
+            <button class="qf-refresh" onclick="loadReports()">↻ Refresh</button>
+            <button class="qf-refresh" onclick="qfExportCsv()">⬇ CSV</button>
+          </div>
+          <div id="qf-ship-entry" class="qf-ship"></div>
+          <div id="qf-rep-body"></div>
         </div>
       </div>
 
@@ -675,36 +704,55 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape' && document.getElementById('quality-overlay').classList.contains('open')) closeQualityFeedback();
 });
 
+let _qfTab = 'submit';
 function switchQualityTab(which) {
-  document.getElementById('qf-tab-submit').classList.toggle('active', which === 'submit');
-  document.getElementById('qf-tab-list').classList.toggle('active', which === 'list');
-  document.getElementById('qf-panel-submit').classList.toggle('active', which === 'submit');
-  document.getElementById('qf-panel-list').classList.toggle('active', which === 'list');
+  _qfTab = which;
+  ['submit', 'list', 'reports'].forEach(t => {
+    document.getElementById('qf-tab-' + t).classList.toggle('active', which === t);
+    document.getElementById('qf-panel-' + t).classList.toggle('active', which === t);
+  });
   if (which === 'list') {
     if (_qfUnlocked) { showSubmissionsList(); loadSubmissions(); }
+    else { showSubmissionsGate(); }
+  } else if (which === 'reports') {
+    if (_qfUnlocked) { showReportsWrap(); loadReports(); }
     else { showSubmissionsGate(); }
   }
 }
 
 function showSubmissionsGate() {
-  document.getElementById('qf-gate').style.display = 'flex';
-  document.getElementById('qf-list-wrap').style.display = 'none';
-  const p = document.getElementById('qf-pass');
+  const r = _qfTab === 'reports';
+  document.getElementById(r ? 'qf-gate-r' : 'qf-gate').style.display = 'flex';
+  document.getElementById(r ? 'qf-reports-wrap' : 'qf-list-wrap').style.display = 'none';
+  const p = document.getElementById(r ? 'qf-pass-r' : 'qf-pass');
   if (p) { p.value = ''; setTimeout(() => p.focus(), 60); }
 }
 function showSubmissionsList() {
   document.getElementById('qf-gate').style.display = 'none';
   document.getElementById('qf-list-wrap').style.display = 'block';
 }
-async function unlockSubmissions() {
-  const pass = document.getElementById('qf-pass').value;
-  const msg = document.getElementById('qf-gate-msg');
+function showReportsWrap() {
+  document.getElementById('qf-gate-r').style.display = 'none';
+  document.getElementById('qf-reports-wrap').style.display = 'block';
+}
+async function unlockSubmissions(which) {
+  const r = which === 'reports';
+  const pass = document.getElementById(r ? 'qf-pass-r' : 'qf-pass').value;
+  const msg = document.getElementById(r ? 'qf-gate-msg-r' : 'qf-gate-msg');
   if (!pass) { msg.textContent = 'Enter the passcode.'; return; }
   msg.textContent = 'Checking…';
   _qfPass = pass;
   const ok = await loadSubmissions();
-  if (ok) { _qfUnlocked = true; showSubmissionsList(); msg.textContent = ''; }
-  else { _qfPass = ''; msg.textContent = 'Incorrect passcode.'; }
+  if (ok) {
+    _qfUnlocked = true; msg.textContent = '';
+    if (r) { showReportsWrap(); loadReports(); } else { showSubmissionsList(); }
+  } else { _qfPass = ''; msg.textContent = 'Incorrect passcode.'; }
+}
+
+function qfDate(s) {
+  const v = s.date || s.created_at || '';
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v);
+  return m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(v || Date.now());
 }
 
 function qfEsc(s) {
@@ -827,7 +875,7 @@ function renderSubmissions() {
 
   const groups = {};
   rows.forEach(s => {
-    const d = new Date(s.date || s.created_at || Date.now());
+    const d = qfDate(s);
     const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
     const label = d.toLocaleString('en-US', { month: 'long', year: 'numeric' });
     (groups[key] = groups[key] || { label, items: [] }).items.push(s);
@@ -837,14 +885,14 @@ function renderSubmissions() {
   const keys = Object.keys(groups).sort().reverse();
   list.innerHTML = keys.map(k => {
     const grp = groups[k];
-    grp.items.sort((a, b) => new Date(b.date || b.created_at) - new Date(a.date || a.created_at));
+    grp.items.sort((a, b) => qfDate(b) - qfDate(a));
     const rowsHtml = grp.items.map(s => {
       const sev = s.severity ? `<span class="qf-pill sev-${s.severity}">${sevLabel[s.severity] || ''}</span>` : '';
       const nd = qfNorm(s);
       const dep = s.category ? `<span class="qf-pill dept">${qfEsc(nd.dept)}</span>` + (nd.sub ? `<span class="qf-pill sub">${qfEsc(nd.sub)}</span>` : '') : '';
       const dollar = (s.dollar_impact != null && s.dollar_impact !== '') ? `<span>💲 $${Number(s.dollar_impact).toLocaleString()}</span>` : '';
       const who = s.reported_by ? `<span>👤 ${qfEsc(s.reported_by)}</span>` : '';
-      const when = new Date(s.date || s.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const when = qfDate(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       const comments = s.comments ? `<div class="qf-comments">${qfEsc(s.comments)}</div>` : '';
       return `<div class="qf-row">
         <div class="qf-row-top">
@@ -860,6 +908,206 @@ function renderSubmissions() {
     return `<div class="qf-month"><div class="qf-month-label"><span>${qfEsc(grp.label)}</span><span class="qf-month-count">${grp.items.length} report${grp.items.length > 1 ? 's' : ''}</span></div>${rowsHtml}</div>`;
   }).join('');
 }
+
+// ─── REPORTS ────────────────────────────────────────────────
+let _qfShipped = {}, _qfRepView = 'month', _qfRepPeriod = '';
+
+function qfMonthKey(s) {
+  const d = qfDate(s);
+  return isNaN(d) ? null : d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+}
+function qfNowMonth() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); }
+function qfQuarterOf(mk) { const [y, m] = mk.split('-').map(Number); return y + '-Q' + (Math.floor((m - 1) / 3) + 1); }
+function qfMonthsOfQuarter(qk) { const [y, q] = qk.split('-Q').map(Number); return [0, 1, 2].map(i => y + '-' + String((q - 1) * 3 + i + 1).padStart(2, '0')); }
+function qfMonthLabel(mk, short) { const [y, m] = mk.split('-').map(Number); return new Date(y, m - 1, 1).toLocaleString('en-US', short ? { month: 'short' } : { month: 'long', year: 'numeric' }); }
+function qfQuarterLabel(qk) { const [y, q] = qk.split('-Q'); return 'Q' + q + ' ' + y; }
+function qfPrevMonth(mk) { const [y, m] = mk.split('-').map(Number); const d = new Date(y, m - 2, 1); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); }
+function qfPrevQuarter(qk) { const [y, q] = qk.split('-Q').map(Number); return q === 1 ? (y - 1) + '-Q4' : y + '-Q' + (q - 1); }
+
+function qfAllMonths() {
+  const set = new Set(Object.keys(_qfShipped));
+  _qfSubs.forEach(s => { const k = qfMonthKey(s); if (k) set.add(k); });
+  set.add(qfNowMonth());
+  return [...set].sort().reverse();
+}
+function qfPeriodOptions() {
+  const months = qfAllMonths();
+  if (_qfRepView === 'month') return months.map(m => [m, qfMonthLabel(m)]);
+  return [...new Set(months.map(qfQuarterOf))].map(q => [q, qfQuarterLabel(q)]);
+}
+function qfMonthsInPeriod(period, view) {
+  if (view === 'month') return [period];
+  if (view === 'quarter') return qfMonthsOfQuarter(period);
+  return qfAllMonths();
+}
+function qfDefaultPeriod() {
+  const opts = qfPeriodOptions().map(o => o[0]);
+  const withData = new Set(Object.keys(_qfShipped));
+  _qfSubs.forEach(s => { const k = qfMonthKey(s); if (k) withData.add(k); });
+  const key = o => _qfRepView === 'month' ? o : qfMonthsOfQuarter(o).find(m => withData.has(m));
+  return opts.find(o => withData.has(_qfRepView === 'month' ? o : key(o))) || opts[0];
+}
+function qfSetView(v) { _qfRepView = v; _qfRepPeriod = qfDefaultPeriod(); renderReports(); }
+function qfSetPeriod(v) { _qfRepPeriod = v; renderReports(); }
+
+function qfStats(months) {
+  const set = new Set(months);
+  const rows = _qfSubs.filter(s => set.has(qfMonthKey(s)));
+  const withCount = months.filter(m => _qfShipped[m] != null);
+  const wc = new Set(withCount);
+  const shipped = withCount.reduce((a, m) => a + _qfShipped[m], 0);
+  const byDept = {};
+  const ensure = d => (byDept[d] = byDept[d] || { dept: d, issues: 0, rateIssues: 0, dollars: 0, high: 0 });
+  QF_DEPTS.forEach(ensure);
+  let rateIssues = 0, dollars = 0, high = 0;
+  rows.forEach(s => {
+    const d = ensure(qfNorm(s).dept || 'Unassigned');
+    const money = Number(s.dollar_impact) || 0;
+    d.issues++; d.dollars += money; dollars += money;
+    if (Number(s.severity) === 1) { d.high++; high++; }
+    if (wc.has(qfMonthKey(s))) { d.rateIssues++; rateIssues++; }
+  });
+  return { rows, shipped, monthsWithCount: withCount.length, monthsTotal: months.length, rateIssues, dollars, high, byDept };
+}
+function qfRate(issues, shipped) {
+  return shipped > 0 ? { per100: issues / shipped * 100, success: Math.max(0, (shipped - issues) / shipped * 100) } : null;
+}
+const qfPct = n => (Math.round(n * 10) / 10).toFixed(1) + '%';
+const qfMoney = n => '$' + Math.round(n).toLocaleString();
+function qfDelta(now, before) {
+  if (before == null) return '';
+  const d = now - before;
+  if (d === 0) return '<span>no change</span>';
+  return d > 0 ? `<span class="qf-up">▲ ${d}</span>` : `<span class="qf-down">▼ ${-d}</span>`;
+}
+
+async function loadReports() {
+  const ok = await loadSubmissions();
+  if (!ok) return;
+  try {
+    const r = await fetch('/api/shipped', { cache: 'no-store', headers: { 'X-Passcode': _qfPass } });
+    if (r.status === 401) { _qfUnlocked = false; showSubmissionsGate(); return; }
+    const d = await r.json().catch(() => ({}));
+    _qfShipped = d.counts || {};
+  } catch (e) { /* reports still work without shipped counts */ }
+  const valid = qfPeriodOptions().some(o => o[0] === _qfRepPeriod);
+  if (!_qfRepPeriod || !valid) _qfRepPeriod = qfDefaultPeriod();
+  renderReports();
+}
+
+function renderShipEntry(months, view, period) {
+  const box = document.getElementById('qf-ship-entry');
+  if (view === 'all') {
+    box.innerHTML = '<div class="qf-ship-title">Orders shipped</div><div class="qf-ship-note">Choose a month or quarter to enter orders shipped. All-time rates only use months that have a count.</div>';
+    return;
+  }
+  const title = view === 'month' ? 'Orders shipped in ' + qfMonthLabel(period) : 'Orders shipped in ' + qfQuarterLabel(period) + ' (by month)';
+  const fields = months.map(m => `<div class="qf-ship-field"><label>${qfEsc(qfMonthLabel(m, true))}</label><input type="number" min="0" step="1" inputmode="numeric" class="qf-ship-in" data-month="${m}" value="${_qfShipped[m] != null ? _qfShipped[m] : ''}" placeholder="0"></div>`).join('');
+  box.innerHTML = `<div class="qf-ship-title">${qfEsc(title)}</div><div class="qf-ship-row">${fields}<button class="qf-submit-btn" style="padding:9px 16px" onclick="saveShipped()">Save</button><span class="qf-ship-msg" id="qf-ship-msg"></span></div>`;
+}
+
+async function saveShipped() {
+  const msg = document.getElementById('qf-ship-msg');
+  const entries = {};
+  document.querySelectorAll('.qf-ship-in').forEach(i => { entries[i.dataset.month] = i.value.trim() === '' ? null : Number(i.value); });
+  msg.className = 'qf-ship-msg'; msg.textContent = 'Saving…';
+  try {
+    const r = await fetch('/api/shipped', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Passcode': _qfPass }, body: JSON.stringify({ entries }) });
+    const d = await r.json().catch(() => ({}));
+    if (r.status === 401) { _qfUnlocked = false; showSubmissionsGate(); return; }
+    if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
+    _qfShipped = d.counts || {};
+    renderReports();
+    const m2 = document.getElementById('qf-ship-msg');
+    if (m2) { m2.className = 'qf-ship-msg qf-down'; m2.textContent = '✓ Saved'; }
+  } catch (e) { msg.className = 'qf-ship-msg qf-up'; msg.textContent = e.message; }
+}
+
+function renderReports() {
+  const body = document.getElementById('qf-rep-body');
+  if (!body) return;
+  const view = _qfRepView, period = _qfRepPeriod;
+  document.querySelectorAll('.qf-seg button').forEach(b => b.classList.toggle('on', b.dataset.view === view));
+  const psel = document.getElementById('qf-rep-period');
+  psel.style.display = view === 'all' ? 'none' : '';
+  psel.innerHTML = qfPeriodOptions().map(([v, l]) => `<option value="${v}"${v === period ? ' selected' : ''}>${qfEsc(l)}</option>`).join('');
+
+  const months = qfMonthsInPeriod(period, view);
+  const st = qfStats(months);
+  const prevMonths = view === 'month' ? [qfPrevMonth(period)] : view === 'quarter' ? qfMonthsOfQuarter(qfPrevQuarter(period)) : null;
+  const prev = prevMonths ? qfStats(prevMonths) : null;
+  renderShipEntry(months, view, period);
+
+  const co = qfRate(st.rateIssues, st.shipped);
+  let note = '';
+  if (st.shipped === 0 && st.monthsWithCount === 0) note = view === 'all' ? 'Enter orders shipped for any month to see success rates.' : 'Enter orders shipped above to see success rates.';
+  else if (st.monthsWithCount < st.monthsTotal && view !== 'month') note = `Rates use the ${st.monthsWithCount} of ${st.monthsTotal} months that have an orders-shipped count.`;
+  const cards = [
+    ['Orders shipped', st.monthsWithCount ? st.shipped.toLocaleString() : '—', ''],
+    ['Issues reported', st.rows.length, prev ? qfDelta(st.rows.length, prev.rows.length) + ' vs. previous' : ''],
+    ['Success rate', co ? qfPct(co.success) : '—', 'orders without an issue'],
+    ['Issues per 100 shipped', co ? (Math.round(co.per100 * 10) / 10).toFixed(1) : '—', ''],
+    ['Dollar impact', qfMoney(st.dollars), prev ? qfDelta(Math.round(st.dollars), Math.round(prev.dollars)).replace(/(▲|▼) (\d+)/, (m, a, n) => a + ' $' + Number(n).toLocaleString()) + ' vs. previous' : ''],
+    ['High severity', st.high, prev ? qfDelta(st.high, prev.high) + ' vs. previous' : '']
+  ].map(c => `<div class="qf-card"><div class="qf-card-label">${c[0]}</div><div class="qf-card-value">${c[1]}</div><div class="qf-card-sub">${c[2]}</div></div>`).join('');
+
+  const depts = Object.values(st.byDept).sort((a, b) => b.issues - a.issues || QF_DEPTS.indexOf(a.dept) - QF_DEPTS.indexOf(b.dept));
+  const deptRows = depts.map(d => {
+    const r = qfRate(d.rateIssues, st.shipped);
+    const pd = prev && prev.byDept[d.dept] ? prev.byDept[d.dept].issues : (prev ? 0 : null);
+    return `<tr><td>${qfEsc(d.dept)}</td><td>${d.issues}</td><td>${r ? (Math.round(r.per100 * 10) / 10).toFixed(1) : '—'}</td><td>${r ? qfPct(r.success) : '—'}</td><td>${qfMoney(d.dollars)}</td><td>${d.high}</td><td>${prev ? qfDelta(d.issues, pd) : '—'}</td></tr>`;
+  }).join('');
+
+  const types = {};
+  st.rows.forEach(s => { const n = qfNorm(s); const k = (n.dept || 'Unassigned') + ' · ' + (n.sub || 'No type'); types[k] = (types[k] || 0) + 1; });
+  const typeList = Object.entries(types).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const maxT = typeList.length ? typeList[0][1] : 1;
+  const typeHtml = typeList.length ? typeList.map(([k, n]) => `<div class="qf-bar-row"><div class="qf-bar-label">${qfEsc(k)}</div><div class="qf-bar-track"><div class="qf-bar-fill" style="width:${Math.round(n / maxT * 100)}%"></div></div><div class="qf-bar-n">${n}</div></div>`).join('') : '<div class="qf-empty" style="padding:14px">No issues in this period.</div>';
+
+  const vend = {};
+  st.rows.forEach(s => { const n = qfNorm(s); if (n.dept === 'Vendor') { const k = n.sub || 'No type'; vend[k] = vend[k] || { n: 0, d: 0 }; vend[k].n++; vend[k].d += Number(s.dollar_impact) || 0; } });
+  const vendHtml = Object.keys(vend).length ? `<div class="qf-sec-title">Vendors</div>` + Object.entries(vend).sort((a, b) => b[1].n - a[1].n).map(([k, v]) => `<div class="qf-bar-row"><div class="qf-bar-label">${qfEsc(k)}</div><div class="qf-bar-n" style="flex:1;text-align:left;font-weight:600">${v.n} issue${v.n !== 1 ? 's' : ''} · ${qfMoney(v.d)}</div></div>`).join('') : '';
+
+  const nowMk = qfNowMonth();
+  let endMk = view === 'all' ? nowMk : months[months.length - 1];
+  if (endMk > nowMk) endMk = nowMk;
+  const trendMonths = [];
+  for (let m = endMk, i = 0; i < 6; i++, m = qfPrevMonth(m)) trendMonths.unshift(m);
+  const trendStats = trendMonths.map(m => qfStats([m]));
+  const maxM = Math.max(1, ...trendStats.map(t => t.rows.length));
+  const trendHtml = trendMonths.map((m, i) => {
+    const t = trendStats[i], r = qfRate(t.rateIssues, t.shipped);
+    return `<div class="qf-trend-col"><div class="qf-trend-n">${t.rows.length}</div><div class="qf-trend-bar" style="height:${Math.round(t.rows.length / maxM * 90)}px"></div><div class="qf-trend-m">${qfEsc(qfMonthLabel(m, true))}</div><div class="qf-trend-r">${r ? qfPct(r.success) : '—'}</div></div>`;
+  }).join('');
+
+  body.innerHTML = (note ? `<div class="qf-rep-note">${qfEsc(note)}</div>` : '')
+    + `<div class="qf-cards">${cards}</div>`
+    + `<div class="qf-sec-title">Department performance</div><div class="qf-tbl-wrap"><table class="qf-tbl"><thead><tr><th>Department</th><th>Issues</th><th>Per 100 shipped</th><th>Success rate</th><th>$ Impact</th><th>High</th><th>vs. prev</th></tr></thead><tbody>${deptRows}</tbody></table></div>`
+    + `<div class="qf-sec-title">Most common issues</div>${typeHtml}`
+    + vendHtml
+    + `<div class="qf-sec-title">Last 6 months</div><div class="qf-trend">${trendHtml}</div><div class="qf-rep-note" style="margin-top:6px">Bars show issues per month. The % under each month is the success rate.</div>`;
+}
+
+function qfExportCsv() {
+  const months = qfMonthsInPeriod(_qfRepPeriod, _qfRepView);
+  const set = new Set(months);
+  const rows = _qfSubs.filter(s => set.has(qfMonthKey(s))).sort((a, b) => qfDate(a) - qfDate(b));
+  const q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+  const head = ['Date', 'Project / Customer', 'Order #', 'Department', 'Type of issue', 'Severity', 'Dollar impact', 'Reported by', 'Issue', 'Comments'];
+  const lines = [head.map(q).join(',')].concat(rows.map(s => {
+    const n = qfNorm(s), d = qfDate(s);
+    const iso = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    return [iso, s.project_name, s.order_number, n.dept, n.sub, QF_SEV_LABEL[s.severity] || '', s.dollar_impact == null ? '' : s.dollar_impact, s.reported_by, s.quality_issue, s.comments].map(q).join(',');
+  }));
+  const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  const label = _qfRepView === 'all' ? 'all-time' : _qfRepPeriod;
+  a.href = URL.createObjectURL(blob);
+  a.download = 'quality-feedback-' + label + '.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+const QF_SEV_LABEL = { 1: 'High', 2: 'Medium', 3: 'Low' };
 </script>
 </body>
 </html>
