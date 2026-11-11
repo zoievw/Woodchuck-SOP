@@ -583,7 +583,8 @@
         </div>
         <div class="qf-field"><label>Order # *</label><input type="text" id="qf-order" placeholder="e.g. WS-10234"></div>
         <div class="qf-field"><label>Quality Issue Reported *</label><textarea id="qf-issue" placeholder="Describe the issue clearly…"></textarea></div>
-        <div class="qf-field"><label>Department responsible</label><select id="qf-category"><option value="">Select…</option><option>Assembly</option><option>Design</option><option>Shipping &amp; Receiving</option><option>Sales</option><option>MGMT</option><option>Purchasing</option><option>Foam Vendor</option><option>Print Vendor</option><option>Wood Vendor</option></select></div>
+        <div class="qf-field"><label>Department responsible</label><select id="qf-category" onchange="qfCategoryChanged()"><option value="">Select…</option><option>Assembly</option><option>Design</option><option>Shipping &amp; Receiving</option><option>Sales</option><option>MGMT</option><option>Purchasing</option><option>Vendor</option></select></div>
+        <div class="qf-field" id="qf-sub-wrap" style="display:none"><label>Vendor type *</label><select id="qf-subcategory"><option value="">Select…</option><option>Foam Vendor</option><option>Print Vendor</option><option>Wood Vendor</option></select></div>
         <div class="qf-grid2">
           <div class="qf-field"><label>Severity</label><select id="qf-severity"><option value="">Select…</option><option value="1">High</option><option value="2">Medium</option><option value="3">Low</option></select></div>
           <div class="qf-field"><label>Dollar Impact ($)</label><input type="number" id="qf-dollar" placeholder="0.00" min="0" step="0.01"></div>
@@ -609,7 +610,8 @@
         </div>
         <div id="qf-list-wrap" style="display:none">
           <div class="qf-list-controls">
-            <div class="qf-filter"><label>Department</label><select id="qf-filter-dept" onchange="renderSubmissions()"><option value="">All departments</option><option>Assembly</option><option>Design</option><option>Shipping &amp; Receiving</option><option>Sales</option><option>MGMT</option><option>Purchasing</option><option>Foam Vendor</option><option>Print Vendor</option><option>Wood Vendor</option></select></div>
+            <div class="qf-filter"><label>Department</label><select id="qf-filter-dept" onchange="renderSubmissions()"><option value="">All departments</option><option>Assembly</option><option>Design</option><option>Shipping &amp; Receiving</option><option>Sales</option><option>MGMT</option><option>Purchasing</option><option>Vendor</option></select></div>
+            <div class="qf-filter" id="qf-filter-sub-wrap" style="display:none"><label>Vendor type</label><select id="qf-filter-sub" onchange="renderSubmissions()"><option value="">All vendor types</option><option>Foam Vendor</option><option>Print Vendor</option><option>Wood Vendor</option></select></div>
             <div class="qf-filter"><label>Reported by</label><select id="qf-filter-person" onchange="renderSubmissions()"><option value="">Anyone</option></select></div>
             <button class="qf-refresh" onclick="loadSubmissions()">↻ Refresh</button>
           </div>
@@ -623,9 +625,19 @@
 
 <script>
 let _qfSubs = [], _qfPass = '', _qfUnlocked = false;
-const QF_DEPTS = ['Assembly', 'Design', 'Shipping & Receiving', 'Sales', 'MGMT', 'Purchasing', 'Foam Vendor', 'Print Vendor', 'Wood Vendor'];
+const QF_DEPTS = ['Assembly', 'Design', 'Shipping & Receiving', 'Sales', 'MGMT', 'Purchasing', 'Vendor'];
+const QF_VENDOR_TYPES = ['Foam Vendor', 'Print Vendor', 'Wood Vendor'];
 const QF_LEGACY = { 'Shipping': 'Shipping & Receiving' };
-function qfDept(c) { return QF_LEGACY[c] || c; }
+function qfNorm(s) {
+  const c = s.category || '';
+  if (QF_VENDOR_TYPES.includes(c)) return { dept: 'Vendor', sub: c };
+  return { dept: QF_LEGACY[c] || c, sub: s.sub_category || '' };
+}
+function qfCategoryChanged() {
+  const isVendor = document.getElementById('qf-category').value === 'Vendor';
+  document.getElementById('qf-sub-wrap').style.display = isVendor ? '' : 'none';
+  if (!isVendor) document.getElementById('qf-subcategory').value = '';
+}
 
 function openQualityFeedback() {
   document.getElementById('quality-overlay').classList.add('open');
@@ -687,6 +699,7 @@ async function submitQualityReport() {
     order_number: g('qf-order').value.trim(),
     quality_issue: g('qf-issue').value.trim(),
     category: g('qf-category').value || null,
+    sub_category: g('qf-category').value === 'Vendor' ? (g('qf-subcategory').value || null) : null,
     severity: g('qf-severity').value || null,
     dollar_impact: g('qf-dollar').value || null,
     reported_by: g('qf-reporter').value.trim() || null,
@@ -696,6 +709,11 @@ async function submitQualityReport() {
   if (!payload.project_name || !payload.order_number || !payload.quality_issue) {
     msg.className = 'qf-msg err';
     msg.textContent = 'Project/customer, order #, and issue are required.';
+    return;
+  }
+  if (payload.category === 'Vendor' && !payload.sub_category) {
+    msg.className = 'qf-msg err';
+    msg.textContent = 'Please choose the vendor type (Foam, Print, or Wood).';
     return;
   }
   const btn = g('qf-submit-btn');
@@ -712,7 +730,8 @@ async function submitQualityReport() {
     if (!r.ok || !data.success) throw new Error(data.error || ('HTTP ' + r.status));
     msg.className = 'qf-msg ok';
     msg.textContent = '✓ Submitted — thank you!';
-    ['qf-date','qf-project','qf-order','qf-issue','qf-category','qf-severity','qf-dollar','qf-reporter','qf-comments'].forEach(id => { g(id).value = ''; });
+    ['qf-date','qf-project','qf-order','qf-issue','qf-category','qf-subcategory','qf-severity','qf-dollar','qf-reporter','qf-comments'].forEach(id => { g(id).value = ''; });
+    qfCategoryChanged();
     if (_qfUnlocked) {
       await loadSubmissions();
       setTimeout(() => { switchQualityTab('list'); msg.textContent = ''; msg.className = 'qf-msg'; }, 1000);
@@ -745,7 +764,7 @@ async function loadSubmissions() {
     const dsel = document.getElementById('qf-filter-dept');
     if (dsel) {
       const cur = dsel.value;
-      const extra = [...new Set(_qfSubs.map(s => qfDept(s.category)).filter(c => c && !QF_DEPTS.includes(c)))].sort();
+      const extra = [...new Set(_qfSubs.map(s => qfNorm(s).dept).filter(c => c && !QF_DEPTS.includes(c)))].sort();
       dsel.innerHTML = '<option value="">All departments</option>' + [...QF_DEPTS, ...extra].map(d => `<option${d === cur ? ' selected' : ''}>${qfEsc(d)}</option>`).join('');
     }
     renderSubmissions();
@@ -760,9 +779,17 @@ function renderSubmissions() {
   const list = document.getElementById('qf-list');
   if (!list) return;
   const dept = (document.getElementById('qf-filter-dept') || {}).value || '';
+  const subWrap = document.getElementById('qf-filter-sub-wrap');
+  const subSel = document.getElementById('qf-filter-sub');
+  if (subWrap && subSel) {
+    subWrap.style.display = dept === 'Vendor' ? '' : 'none';
+    if (dept !== 'Vendor') subSel.value = '';
+  }
+  const sub = subSel ? subSel.value : '';
   const person = (document.getElementById('qf-filter-person') || {}).value || '';
   let rows = _qfSubs.slice();
-  if (dept) rows = rows.filter(s => qfDept(s.category || '') === dept);
+  if (dept) rows = rows.filter(s => qfNorm(s).dept === dept);
+  if (sub) rows = rows.filter(s => qfNorm(s).sub === sub);
   if (person) rows = rows.filter(s => (s.reported_by || '') === person);
   if (!rows.length) { list.innerHTML = '<div class="qf-empty">No submissions yet.</div>'; return; }
 
@@ -781,7 +808,8 @@ function renderSubmissions() {
     grp.items.sort((a, b) => new Date(b.date || b.created_at) - new Date(a.date || a.created_at));
     const rowsHtml = grp.items.map(s => {
       const sev = s.severity ? `<span class="qf-pill sev-${s.severity}">${sevLabel[s.severity] || ''}</span>` : '';
-      const dep = s.category ? `<span class="qf-pill dept">${qfEsc(qfDept(s.category))}</span>` : '';
+      const nd = qfNorm(s);
+      const dep = s.category ? `<span class="qf-pill dept">${qfEsc(nd.sub || nd.dept)}</span>` : '';
       const dollar = (s.dollar_impact != null && s.dollar_impact !== '') ? `<span>💲 $${Number(s.dollar_impact).toLocaleString()}</span>` : '';
       const who = s.reported_by ? `<span>👤 ${qfEsc(s.reported_by)}</span>` : '';
       const when = new Date(s.date || s.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });

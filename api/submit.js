@@ -36,6 +36,7 @@ export default async function handler(req, res) {
       order_number,
       quality_issue,
       category: b.category || null,
+      sub_category: (b.sub_category || '').toString().trim() || null,
       severity: b.severity ? parseInt(b.severity, 10) : null,
       dollar_impact: (b.dollar_impact !== null && b.dollar_impact !== undefined && b.dollar_impact !== '')
         ? parseFloat(b.dollar_impact) : null,
